@@ -73,8 +73,6 @@ class MemoryGame:
         #Obtener el nombre del jugador
         Nombre = JugadorActual.getNombre()
         self.cambiar_turno()
-
-        #Desabilitar los botones del jugador que no tiene el turno y habilitar los botones del otro jugador
         if Nombre == "Jugador 1":
             for fila in botones_tablero1:
                 for casilla in fila:
@@ -93,36 +91,22 @@ class MemoryGame:
                 for casilla in fila:
                     casilla["boton"].config(state="normal")
 
-
-
-
     def VerificaPareja(self,jugador, imagenOculta, botones_tablero1, botones_tablero2):
         JugadorActual = jugador
         if self.Primera_carta == self.Segunda_carta:
             JugadorActual.setParejasEncontradas()
-            #self.ReiniciarCartas("Gane", imagenOculta)
             self.root.after(1000, lambda: self.ReiniciarCartas("Gane", imagenOculta))
-            self.root.after(1500, lambda: self.Actualizar_estado_botones(JugadorActual,botones_tablero1, botones_tablero2))
-
-            #Prints de prueba
-            print("win")
-            print(f"Fallos Jugador 1: {self.jugador1.getFallos()}")
-            print(f"Fallos Jugador 2: {self.jugador2.getFallos()}")
-            print(f"Wins Jugador 1: {self.jugador1.getParejasEncontradas()}")
-            print(f"Wins Jugador 2: {self.jugador2.getParejasEncontradas()}")
-            
+            self.root.after(1500, lambda: [
+                self.Actualizar_estado_botones(JugadorActual,botones_tablero1, botones_tablero2),
+                self.root.event_generate("<<UpdateMarkers>>")  # Evento para actualizar marcadores
+            ])
         else:
             JugadorActual.setFallos()
-            #self.ReiniciarCartas("Fallo", imagenOculta)
             self.root.after(1000, lambda: self.ReiniciarCartas("Fallo", imagenOculta))
-            self.root.after(1500, lambda: self.Actualizar_estado_botones(JugadorActual,botones_tablero1, botones_tablero2))
-
-            #Prints de prueba
-            print("fail")
-            print(f"Fallos Jugador 1: {self.jugador1.getFallos()}")
-            print(f"Fallos Jugador 2: {self.jugador2.getFallos()}")
-            print(f"Wins Jugador 1: {self.jugador1.getParejasEncontradas()}")
-            print(f"Wins Jugador 2: {self.jugador2.getParejasEncontradas()}")
+            self.root.after(1500, lambda: [
+                self.Actualizar_estado_botones(JugadorActual,botones_tablero1, botones_tablero2),
+                self.root.event_generate("<<UpdateMarkers>>")  # Evento para actualizar marcadores
+            ])
 
     
 
