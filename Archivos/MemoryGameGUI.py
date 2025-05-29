@@ -112,7 +112,7 @@ class MemoryGameGUI:
         imagenes = []
         for i in range(1,19):
             try:
-                ruta = f"imagenes/imagen{i}.jpg"
+                ruta = f"imagenesmemoria/imagen{i}.jpg"
                 if os.path.exists(ruta):
                     img = Image.open(ruta)
                     img = img.resize((self.BOTON_ANCHO, self.BOTON_ALTO))

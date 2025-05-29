@@ -1,7 +1,7 @@
 import tkinter as tk
-from MemoryGameGUI import MemoryGameGUI
+from MainMenu import MainMenu
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = MemoryGameGUI(root)
+    app = MainMenu(root)
     root.mainloop()
