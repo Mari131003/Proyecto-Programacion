@@ -5,6 +5,7 @@ import os
 import random
 from MemoryGame import MemoryGame
 
+
 class MemoryGameGUI:
     def __init__(self, root):
         self.root = root
@@ -23,42 +24,77 @@ class MemoryGameGUI:
         self.crear_interfaz()
         self.enviarRoot()
         self.actualizar_marcadores()
+
+    #Enviar Root a game
     def enviarRoot(self):
         self.game.setRoot(self.root)
+
     def crear_marcadores(self):
+
+        #Crear frame para contener los marcadores
         marcadores_frame = tk.Frame(self.root, bg="#F5C5DB")
         marcadores_frame.grid(row=0, column=0, columnspan=13, sticky="nsew")
         for i in range(13):
             marcadores_frame.grid_columnconfigure(i, weight=1 if i in [2,9] else 0)
+
+        #Crear frame para jugador 1
         frame_jugador1 = tk.Frame(marcadores_frame, bg='#F5C5DB', bd=2, relief="ridge", padx=10, pady=5)
         frame_jugador1.grid(row=0, column=0, columnspan=6, sticky="nsew", padx=(0,10))
         frame_jugador1.grid_propagate(False)
         frame_jugador1.config(width=self.BOTON_ANCHO*6 + 2*5)  
         tk.Label(frame_jugador1, text="Jugador 1", bg='#B22F70', fg='white',
                 font=self.custom_font).pack(pady=(0,5))
+        
+        #Marcador del juego
         self.marcador_parejas1 = tk.Label(frame_jugador1, text="Parejas: 0", bg='#F5C5DB')
         self.marcador_parejas1.pack()
         self.marcador_fallos1 = tk.Label(frame_jugador1, text="Fallos: 0", bg='#F5C5DB')
         self.marcador_fallos1.pack()
-        self.marcador_tiempo1 = tk.Label(frame_jugador1, text="Tiempo: 0s", bg='#F5C5DB')
+
+        #Marcador de tiempo
+        self.marcador_tiempo1 = tk.Label(frame_jugador1, text="Tiempo: 10s", bg='#F5C5DB')
         self.marcador_tiempo1.pack()
+
+        #Crear frame para jugador 2
         frame_jugador2 = tk.Frame(marcadores_frame, bg='#F5C5DB', bd=2, relief="ridge", padx=10, pady=5)
         frame_jugador2.grid(row=0, column=7, columnspan=6, sticky="nsew", padx=(10,0))
         frame_jugador2.grid_propagate(False)
         frame_jugador2.config(width=self.BOTON_ANCHO*6 + 2*5)  
         tk.Label(frame_jugador2, text="Jugador 2", bg='#B22F70', fg='white',
                 font=self.custom_font).pack(pady=(0,5))
+        
+        #Marcador del juego
         self.marcador_parejas2 = tk.Label(frame_jugador2, text="Parejas: 0", bg='#F5C5DB')
         self.marcador_parejas2.pack()
         self.marcador_fallos2 = tk.Label(frame_jugador2, text="Fallos: 0", bg='#F5C5DB')
         self.marcador_fallos2.pack()
-        self.marcador_tiempo2 = tk.Label(frame_jugador2, text="Tiempo: 0s", bg='#F5C5DB')
+
+        #Macrcador de tiempo
+        self.marcador_tiempo2 = tk.Label(frame_jugador2, text="Tiempo: 10s", bg='#F5C5DB')
         self.marcador_tiempo2.pack()
+
+        #Marcador de turno
         self.marcador_turno = tk.Label(marcadores_frame, text="Turno: Jugador 1", bg="#F5C5DB", 
                                      font=("Helvetica", 12, "bold"), fg="#B22F70")
         self.marcador_turno.grid(row=0, column=6, sticky="ns")
+
         marcadores_frame.config(height=100)
         marcadores_frame.grid_propagate(False)
+
+        self.EnviarMarcadores()
+
+    #Enviar marcadores a la clase game
+    def EnviarMarcadores(self):
+        #Enviamos marcadores de tiempo (para actualizarlos cada segundo)
+        self.game.setMarcadores(self.marcador_tiempo1,self.marcador_tiempo2)
+
+        #Enviamos la funcion para actualizarlos
+        self.game.Recibir_ActualizarMarcadores(self.actualizar_marcadores)
+
+        #Enviamos funcion que muestra los marcadores al ganar
+        self.game.Recibir_VentanasGane(self.mostrar_ventana_ganador)
+
+
 
     def actualizar_marcadores(self):
         self.marcador_parejas1.config(text=f"Parejas: {self.game.jugador1.getParejasEncontradas()}")
@@ -115,6 +151,8 @@ class MemoryGameGUI:
                     "imagen_id": id_imagen,
                     "revelado": False
                 }
+
+        #Crea la separacion entre ambos
         separador = tk.Frame(self.root, width=20, bg='#F5C5DB')
         separador.grid(row=1, column=6, rowspan=6, sticky="ns", padx=10)
         
@@ -147,10 +185,18 @@ class MemoryGameGUI:
             activeforeground='white',
             font=self.custom_font
         ).grid(row=7, column=0, columnspan=13, pady=10)
+
         # Iniciar con los botones del tablero 2 deshabilitados
         for fila in self.botones_tablero2:
                 for casilla in fila:
                     casilla["boton"].config(state="disabled")
+
+        #Enviar imagen oculta a game para actualizar luego los botones
+        self.game.setImagenOculta(self.imagen_oculta)
+
+        #Enviar tableros y sus botones
+        self.game.setTableros(self.botones_tablero1,self.botones_tablero2)
+    
 
     def revelar_imagen(self, fila, col, tablero):
         """Revela la imagen en la posición especificada del tablero indicado."""
@@ -162,35 +208,84 @@ class MemoryGameGUI:
             imagen_id = boton_info["imagen_id"]
             boton_info["boton"].config(image=self.imagenes[imagen_id])
             boton_info["revelado"] = True
-            self.Espera_Pareja(1, imagen_id, boton_info)
+            self.Espera_Pareja(imagen_id, boton_info)
 
-    def Espera_Pareja(self, CantPareja, imagen_id, casilla):
-        self.HayPareja += CantPareja
-        if self.HayPareja == 2:
+    def Espera_Pareja(self, imagen_id, casilla):
+        """Verifica que haya 2 cartas antes de verificar las parejas e inicia el cronometro del jugador"""
+        self.game.AumentaCartas(1)
+        CantCartas = self.game.getCantCartas()
+        if CantCartas == 2:
             jugador_actual = self.game.obtener_jugador_actual()
-            self.HayPareja = 0
+            self.game.SetCartas(0)
             self.game.SetSegundaCarta(imagen_id, casilla)
-            self.game.VerificaPareja(jugador_actual, self.imagen_oculta, self.botones_tablero1, self.botones_tablero2)
+            self.game.VerificaPareja(jugador_actual)
             self.actualizar_marcadores()  # Actualizar marcadores después de verificar pareja
+            self.game.VerificarTerminaJuego()
         else:
             self.game.SetPrimeraCarta(imagen_id, casilla)
+            if not self.game.ejecutando:
+                self.game.iniciar_cronometro()
+
+    def mostrar_ventana_ganador(self, ganador, intentos1, intentos2):
+        """Muestra una ventana con el jugador ganador"""
+        ventana_ganador = tk.Toplevel()
+        ventana_ganador.title("¡Juego Terminado!")
+        ventana_ganador.geometry("300x150")
+        ventana_ganador.resizable(False, False)
+        ventana_ganador.config(bg="#ffcff1")
+        
+        # Centrar la ventana
+        ventana_ganador.transient(self.root) 
+        ventana_ganador.grab_set()
+        
+        # Título
+        titulo = tk.Label(ventana_ganador, text="🎉 ¡Felicidades! 🎉", 
+                        font=("Arial", 14, "bold"))
+        titulo.pack(pady=10)
+        
+        # Mensaje del ganador
+        mensaje = tk.Label(ventana_ganador, text=f"Ganador: {ganador}", 
+                        font=("Arial", 12, "bold"), fg="#ff00c5")
+        mensaje.pack(pady=5)
+        
+        # Mostrar intentos
+        detalles = tk.Label(ventana_ganador, 
+                        text=f"Jugador 1: {intentos1} intentos\nJugador 2: {intentos2} intentos")
+        detalles.pack(pady=5)
+        
+        # Botón para cerrar
+        boton_ok = tk.Button(ventana_ganador, text="OK", 
+                            command=ventana_ganador.destroy,
+                            width=10)
+        boton_ok.pack(pady=10)
+        
+        # Centrar la ventana en la pantalla
+        ventana_ganador.update_idletasks()
+        x = (ventana_ganador.winfo_screenwidth() // 2) - (ventana_ganador.winfo_width() // 2)
+        y = (ventana_ganador.winfo_screenheight() // 2) - (ventana_ganador.winfo_height() // 2)
+        ventana_ganador.geometry(f"+{x}+{y}")
 
     def reiniciar_juego(self):
         """Reinicia ambos tableros del juego."""
+        
+        # Detener cronómetro completamente
+        self.game.ejecutando = False
+        if self.game.hilo_cronometro and self.game.hilo_cronometro.is_alive():
+            self.game.hilo_cronometro.join()
+        self.game.hilo_cronometro = None
+        
         # Reiniciar tablero 1
         for fila in self.botones_tablero1:
             for casilla in fila:
-                casilla["boton"].config(image=self.imagen_oculta)
+                casilla["boton"].config(image=self.imagen_oculta, state="normal")
                 casilla["revelado"] = False
+        
         # Reiniciar tablero 2
         for fila in self.botones_tablero2:
             for casilla in fila:
-                casilla["boton"].config(image=self.imagen_oculta)
+                casilla["boton"].config(image=self.imagen_oculta, state="disabled")
                 casilla["revelado"] = False
+        
         # Reiniciar el juego
         self.game.reiniciar()
         self.actualizar_marcadores()
-        # Volver a deshabilitar tablero 2
-        for fila in self.botones_tablero2:
-            for casilla in fila:
-                casilla["boton"].config(state="disabled")
