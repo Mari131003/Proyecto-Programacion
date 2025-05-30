@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import PhotoImage, font
 from PIL import Image, ImageTk 
+import pygame
 import os
 import random
 from MemoryGame import MemoryGame
@@ -31,6 +32,17 @@ class MemoryGameGUI:
         self.crear_interfaz()
         self.enviarRoot()
         self.actualizar_marcadores()
+        self.game.Recibir_VentanasGane(self.mostrar_ventana_victoria)
+        pygame.mixer.init()
+        self.sonido_victoria = None
+    
+        # Cargar sonido de victoria
+        try:
+            ruta_sonido = os.path.join("musica", "victoria.mp3")
+            if os.path.exists(ruta_sonido):
+                self.sonido_victoria = pygame.mixer.Sound(ruta_sonido)
+        except Exception as e:
+            print(f"No se pudo cargar sonido de victoria: {e}")
 
         tk.Button(
             self.root,
@@ -315,3 +327,84 @@ class MemoryGameGUI:
         # Reiniciar el juego
         self.game.reiniciar()
         self.actualizar_marcadores()
+
+
+    def mostrar_ventana_victoria(self, ganador):
+        """Muestra ventana de victoria con imagen que ocupa todo el marco"""
+        if self.sonido_victoria:
+            self.sonido_victoria.play()
+        self.root.withdraw()
+        ventana_victoria = tk.Toplevel()
+        ventana_victoria.title("¡Victoria!")
+        ventana_victoria.geometry("600x500") 
+        ventana_victoria.resizable(False, False)
+        ventana_victoria.configure(bg='#F5C5DB')
+        ventana_victoria.grab_set()  
+
+        ventana_victoria.protocol("WM_DELETE_WINDOW", lambda: None) # Evitar que se cierre con la X
+        marco_imagen = tk.Frame(ventana_victoria, bg='white', bd=3, relief='ridge')
+        marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
+        try:
+            ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpeg")
+            if os.path.exists(ruta_imagen):
+                img_original = Image.open(ruta_imagen)
+                marco_ancho = 560  # Calcular relación de aspecto
+                marco_alto = 400   
+                relacion_original = img_original.width / img_original.height
+                relacion_marco = marco_ancho / marco_alto
+                if relacion_original > relacion_marco:
+                    nuevo_ancho = marco_ancho
+                    nuevo_alto = int(marco_ancho / relacion_original)
+                else:
+                    nuevo_alto = marco_alto
+                    nuevo_ancho = int(marco_alto * relacion_original)
+                img_redimensionada = img_original.resize((nuevo_ancho, nuevo_alto), Image.LANCZOS)
+                self.img_victoria_tk = ImageTk.PhotoImage(img_redimensionada)
+                label_imagen = tk.Label(marco_imagen, image=self.img_victoria_tk, bg='white')
+                label_imagen.pack(expand=True)
+                label_ganador = tk.Label(marco_imagen, 
+                                        text=f"¡{ganador} ha ganado!",
+                                        font=("Helvetica", 16, "bold"), 
+                                        bg='white', fg='#B22F70')
+                label_ganador.place(relx=0.5, rely=0.9, anchor='center')
+        except Exception as e:
+            print(f"Error al cargar imagen: {e}")
+            tk.Label(marco_imagen, 
+                    text=f"¡{ganador} ha ganado!\n\nVICTORIA",
+                    font=("Helvetica", 24, "bold"), 
+                    bg='white', fg='#B22F70').pack(expand=True)
+        frame_botones = tk.Frame(ventana_victoria, bg='#F5C5DB')
+        frame_botones.pack(pady=(10, 20), fill='x')
+        tk.Button(
+            frame_botones,
+            text="Ver Premios",
+            command=lambda: [self.detener_sonido(), ventana_victoria.destroy(), self.abrir_premios()],
+            bg="#B22F70",
+            fg='white',
+            font=self.custom_font,
+            width=15
+        ).pack(side='left', padx=20, expand=True)
+        tk.Button(
+            frame_botones,
+            text="Menú Principal",
+            command=lambda: [self.detener_sonido(), ventana_victoria.destroy(), self.return_to_main()],
+            bg="#B22F70",
+            fg='white',
+            font=self.custom_font,
+            width=15
+        ).pack(side='right', padx=20, expand=True)
+
+
+    def detener_sonido(self):
+        """Detiene el sonido de victoria"""
+        if self.sonido_victoria:
+            self.sonido_victoria.stop()
+
+    def abrir_premios(self):
+        """Método para abrir ventana de premios"""
+        self.root.destroy()  # Cierra la ventana actual del juego
+        root = tk.Tk()
+        from MainMenu import MainMenu
+        app = MainMenu(root)
+        app.open_premios_window()  # Abre directamente la ventana de premios
+        root.mainloop()

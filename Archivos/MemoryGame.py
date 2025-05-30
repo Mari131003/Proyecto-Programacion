@@ -289,41 +289,21 @@ class MemoryGame:
                 self.actualizar_display()
 
     def VerificarTerminaJuego(self):
-        """Verifica si ya los jugadores encontraron todas las parejas"""
+        """Verifica si un jugador ha completado todas las parejas"""
         ParejasJugador1 = self.jugador1.getParejasEncontradas()
         ParejasJugador2 = self.jugador2.getParejasEncontradas()
 
-        if ParejasJugador1 == 18 and ParejasJugador2 == 18 :
+        # Verificar si algún jugador ha completado su tablero (18 parejas)
+        if ParejasJugador1 == 18 or ParejasJugador2 == 18:
             self.detener_cronometro_completamente()
-            self.actualizar_marcadores()
             self.Deshabilitar_botones()
-            self.VerificaGanador()
-
-        elif ParejasJugador1 == 18 or ParejasJugador2 == 18:
-            if self.HayDosJugadores:
-                self.HayDosJugadores = False
-                self.detener_cronometro_completamente()
-                jugadorActual=self.obtener_jugador_actual()
-                self.Actualizar_estado_botones(jugadorActual)
-                self.cambiar_turno()
-                self.actualizar_marcadores()
-
-            
-    def VerificaGanador(self):
-        """Verifica quien fue el jugador ganador"""
-        IntentosJugador1 = self.jugador1.getIntentos()
-        IntentosJugador2 = self.jugador2.getIntentos()
-        if IntentosJugador1 > IntentosJugador2:
-            ganador = "Jugador 2"
-
-        elif IntentosJugador1 == IntentosJugador2:
-            ganador = "Empate"
-
-        else:
-            ganador = "Jugador 1"  
         
-        # Crear ventana de ganador
-        self.CrearVentanaGane(ganador,IntentosJugador1, IntentosJugador2)
+            # Determinar ganador
+            ganador = "Jugador 1" if ParejasJugador1 == 18 else "Jugador 2"
+        
+            # Llamar a la ventana de victoria
+            if hasattr(self, 'CrearVentanaGane') and self.root:
+                self.root.after(0, lambda: self.CrearVentanaGane(ganador))
         
 
             
