@@ -13,6 +13,7 @@ class MemoryGameGUI:
         self.return_callback = return_callback
         self.root.protocol("WM_DELETE_WINDOW", self.return_to_main)
         self.root.title("Juego de Memoria")
+        self.seleccion_activa = True 
         self.music_callback = music_callback
         if self.music_callback:
             self.music_callback("musica/audiomemoria.mp3")
@@ -221,6 +222,8 @@ class MemoryGameGUI:
 
     def revelar_imagen(self, fila, col, tablero):
         """Revela la imagen en la posición especificada del tablero indicado."""
+        if not self.seleccion_activa:  # No hacer nada si la selección está bloqueada
+            return
         if tablero == 1:
             boton_info = self.botones_tablero1[fila][col]
         else:
@@ -236,12 +239,14 @@ class MemoryGameGUI:
         self.game.AumentaCartas(1)
         CantCartas = self.game.getCantCartas()
         if CantCartas == 2:
+            self.seleccion_activa = False
             jugador_actual = self.game.obtener_jugador_actual()
             self.game.SetCartas(0)
             self.game.SetSegundaCarta(imagen_id, casilla)
             self.game.VerificaPareja(jugador_actual)
             self.actualizar_marcadores()  # Actualizar marcadores después de verificar pareja
             self.game.VerificarTerminaJuego()
+            self.root.after(1000, lambda: setattr(self, 'seleccion_activa', True))
         else:
             self.game.SetPrimeraCarta(imagen_id, casilla)
             if not self.game.ejecutando:
@@ -288,7 +293,7 @@ class MemoryGameGUI:
 
     def reiniciar_juego(self):
         """Reinicia ambos tableros del juego."""
-        
+        self.seleccion_activa = True 
         # Detener cronómetro completamente
         self.game.ejecutando = False
         if self.game.hilo_cronometro and self.game.hilo_cronometro.is_alive():
