@@ -6,9 +6,15 @@ import random
 from MemoryGame import MemoryGame
 
 class PatternGameGUI:
-    def __init__(self, root):
+    def __init__(self, root,music_callback=None,return_callback=None):
         self.root = root
+        self.music_callback = music_callback
+        self.return_callback = return_callback
+        self.root.protocol("WM_DELETE_WINDOW", self.return_to_main)
         self.root.title("Juego de Patrones")
+        if self.music_callback:
+            self.music_callback("musica/audiopatrones.mp3")
+        self.music_callback=music_callback
         self.root.configure(bg="white")
         self.BOTON_ANCHO = 80
         self.BOTON_ALTO = 80
@@ -16,6 +22,21 @@ class PatternGameGUI:
         self.game = MemoryGame()
         self.botones = [[None for _ in range(6)] for _ in range(6)]
         self.crear_interfaz()
+
+        tk.Button(
+            self.root,
+            text="Volver al Menú",
+            command=self.return_to_main,
+            bg="#B22F70",
+            fg='white',
+            font=("Helvetica", 10, "bold")
+        ).grid(row=8, column=0, columnspan=6, pady=10)
+
+    def return_to_main(self):
+        if self.music_callback:
+            self.music_callback("musica/pantallaprincipal.mp3")
+        if self.return_callback:
+            self.return_callback()
 
     def cargar_imagenes(self):
         imagenes = []
@@ -64,7 +85,10 @@ class PatternGameGUI:
         tk.Button(
             self.root,
             text="Reiniciar Juego",
-            command=self.reiniciar_juego
+            command=self.reiniciar_juego,
+            bg="#B22F70",
+            fg='white',
+            font=("Helvetica", 10, "bold")
         ).grid(row=7, column=0, columnspan=6, pady=10)
 
     def reiniciar_juego(self):

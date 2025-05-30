@@ -145,11 +145,17 @@ class MemoryGame:
             time.sleep(1)
             if self.ejecutando:
                 self.tiempo_restante -= 1
-                self.root.after(0, self.actualizar_display)
-
+                try:
+                    if self.root and self.root.winfo_exists():
+                        self.root.after(0, self.actualizar_display)
+                except (tk.TclError, RuntimeError):
+                    break 
         if self.tiempo_restante <= 0 and self.ejecutando:
-            self.root.after(0, self.tiempo_agotado)
-    
+            try:
+                if self.root and self.root.winfo_exists():
+                    self.root.after(0, self.tiempo_agotado)
+            except (tk.TclError, RuntimeError):
+                pass
     def actualizar_display(self):
         """Actualiza el tiempo en pantalla cada segundo"""
         if self.turno_actual == 0:

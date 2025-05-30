@@ -7,9 +7,15 @@ from MemoryGame import MemoryGame
 
 
 class MemoryGameGUI:
-    def __init__(self, root):
+    def __init__(self, root,music_callback=None,return_callback=None):
         self.root = root
+        self.music_callback = music_callback
+        self.return_callback = return_callback
+        self.root.protocol("WM_DELETE_WINDOW", self.return_to_main)
         self.root.title("Juego de Memoria")
+        self.music_callback = music_callback
+        if self.music_callback:
+            self.music_callback("musica/audiomemoria.mp3")
         self.root.configure(bg='#F5C5DB')
         self.custom_font = font.Font(family="Helvetica", size=10, weight="bold")
         self.BOTON_ANCHO = 85
@@ -24,6 +30,21 @@ class MemoryGameGUI:
         self.crear_interfaz()
         self.enviarRoot()
         self.actualizar_marcadores()
+
+        tk.Button(
+            self.root,
+            text="Volver al Menú",
+            command=self.return_to_main,
+            bg="#B22F70",
+            fg='white',
+            font=self.custom_font
+        ).grid(row=8, column=0, columnspan=13, pady=10)
+
+    def return_to_main(self):
+        if self.music_callback:
+            self.music_callback("musica/pantallaprincipal.mp3")
+        if self.return_callback:
+            self.return_callback()
 
     #Enviar Root a game
     def enviarRoot(self):
