@@ -345,7 +345,8 @@ class MemoryGameGUI:
         marco_imagen = tk.Frame(ventana_victoria, bg='white', bd=3, relief='ridge')
         marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
         try:
-            ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpeg")
+            #ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpeg")
+            ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpg")
             if os.path.exists(ruta_imagen):
                 img_original = Image.open(ruta_imagen)
                 marco_ancho = 560  # Calcular relación de aspecto
