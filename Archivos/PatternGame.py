@@ -15,6 +15,7 @@ class PatternGame:
         self.SecuenciaActual = 1
         self.PasoActual = 0
         self.actualizar_puntuacion = None
+        self.mostrar_ventana_victoria = None
 
     #SETS Y GETS
 
@@ -42,8 +43,9 @@ class PatternGame:
         return self.jugador
     
     #Obtener funciones importantes
-    def RecibirFunciones(self,funcion1):
+    def RecibirFunciones(self,funcion1, funcion2):
         self.actualizar_puntuacion = funcion1
+        self.mostrar_ventana_victoria = funcion2
             
     #JUEGO
 
@@ -59,8 +61,7 @@ class PatternGame:
         """Establece el patron para el juego"""
         botones_copia = self.botones.copy()
         random.shuffle(botones_copia)
-        CantBotones = len(botones_copia) - 1
-
+        CantBotones = len(botones_copia)
         for i in range(CantBotones):
             Boton = botones_copia[i]
             self.Patron += Boton
@@ -100,14 +101,23 @@ class PatternGame:
     def IniciaSecuencia(self):
         """Verifica si se ha completado la secuencia y vuelve a mostrarla en pantalla sumandole 1 a la secuencia actual"""
         if self.PasoActual == self.SecuenciaActual:
-                if self.SecuenciaActual == 16:
-                    pass
-                else:
-                    self.jugador.AumentaSecuencia()
-                    self.actualizar_puntuacion()
-                    self.PasoActual = 0
-                    self.SecuenciaActual += 1
-                    self.root.after(1500, self.MostrarPatron)
+            if self.SecuenciaActual == 16:
+                self.mostrar_ventana_victoria()
+            else:
+                self.jugador.AumentaSecuencia()
+                self.actualizar_puntuacion()
+                self.PasoActual = 0
+                self.SecuenciaActual += 1
+                self.root.after(1500, self.MostrarPatron)
+
+    def reiniciar(self):
+        self.jugador.setSecuencias(0)
+        self.botones = []
+        self.Patron = []
+        self.SecuenciaActual = 1
+        self.PasoActual = 0
+
+
 
 
 

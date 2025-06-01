@@ -42,10 +42,13 @@ class Jugador:
         return self.intentos
     
     #Juego patrones
-    
+
     def AumentaSecuencia(self):
         self.Secuencias += 1
     
     def getSecuencias(self):
         return self.Secuencias
+    
+    def setSecuencias(self,num):
+        self.Secuencias = num
     

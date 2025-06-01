@@ -30,6 +30,7 @@ class PatternGameGUI:
                "#FF9E9E", "#FFCCCB", "#B3C6E7", "#C8E6A0"]
         
         self.botones = [[None for _ in range(4)] for _ in range(4)]
+        self.custom_font = font.Font(family="Helvetica", size=12, weight="bold")
         
         # Variables de marcadores
         self.puntuacion = 0
@@ -43,6 +44,16 @@ class PatternGameGUI:
         
         self.crear_interfaz()
         self.enviarRoot()
+        self.CargarSonidoVictoria()
+
+    def CargarSonidoVictoria(self):
+        # Cargar sonido de victoria
+        try:
+            ruta_sonido = os.path.join("musica", "victoria.mp3")
+            if os.path.exists(ruta_sonido):
+                self.sonido_victoria = pygame.mixer.Sound(ruta_sonido)
+        except Exception as e:
+            print(f"No se pudo cargar sonido de victoria: {e}")
 
     def enviarRoot(self):
         """Enviar Root a game"""
@@ -251,10 +262,11 @@ class PatternGameGUI:
 
         #Verifica el orden
         if self.game.VerificaSecuencia(boton_info):
-            print("Win")
             self.game.IniciaSecuencia()
         else:
-            print("GameOver")
+            jugador = self.game.obtenerJugador()
+            secuencias = jugador.getSecuencias()
+            self.mostrar_ventana_game_over(secuencias)
 
 
     def actualizar_puntuacion(self):
@@ -270,34 +282,199 @@ class PatternGameGUI:
 
     def reiniciar_juego(self):
         """Reinicia el juego ocultando todos los botones y reorganizando colores"""
-        # Reorganizar colores
-        colores_patron = self.colores.copy()
-        random.shuffle(colores_patron)
+        #Reiniciar juego
+        self.game.reiniciar()
         
-        # Reiniciar marcadores
-        self.puntuacion = 0
+        # Reiniciar marcadores visuales
         self.tiempo_restante = 12
         self.actualizar_puntuacion()
         self.actualizar_tiempo()
+
+        # Reorganizar colores
+        colores_patron = self.colores.copy()
+        random.shuffle(colores_patron)
         
         for i in range(4):
             for j in range(4):
                 color_nuevo = colores_patron[i * 4 + j]
                 btn = self.botones[i][j]["boton"]
                 
-                # Ocultar botón nuevamente
-                btn.config(
-                    bg="#5D00AF",
-                    text="",
-                    relief="raised"
-                )
+                # Ocultar botón
+                btn.config(bg="#5D00AF", text="", relief="raised")
                 
-                # Actualizar información
+                # Actualizar información CON NUEVOS COLORES
                 self.botones[i][j]["color"] = color_nuevo
                 self.botones[i][j]["revelado"] = False
+        
+        self.game.SetBotones(self.botones)
+        self.game.EstablecerPatron()
+        
+        # Reiniciar botón de inicio
+        self.boton_inicio.config(text="INICIO", bg="#5D00AF")
+
+        #Iniciar con los botones deshabilitados
+        self.deshabilitar_botones()
+
+
+    def mostrar_ventana_victoria(self):
+        """Muestra ventana de victoria con imagen que ocupa todo el marco"""
+        if self.sonido_victoria:
+            self.sonido_victoria.play()
+        self.root.withdraw()
+        ventana_victoria = tk.Toplevel()
+        ventana_victoria.title("¡Victoria!")
+
+        #Centrar en la pantalla
+        window_width = 600
+        window_height = 500
+        screen_width = ventana_victoria.winfo_screenwidth()
+        screen_height = ventana_victoria.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        ventana_victoria.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        
+        ventana_victoria.resizable(False, False)
+        ventana_victoria.configure(bg="#EBCDFD")
+        ventana_victoria.grab_set() 
+
+        ventana_victoria.protocol("WM_DELETE_WINDOW", lambda: None) # Evitar que se cierre con la X
+        marco_imagen = tk.Frame(ventana_victoria, bg='white', bd=3, relief='ridge')
+        marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
+        try:
+            #ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpeg")
+            ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpg")
+            if os.path.exists(ruta_imagen):
+                img_original = Image.open(ruta_imagen)
+                marco_ancho = 560  # Calcular relación de aspecto
+                marco_alto = 400   
+                relacion_original = img_original.width / img_original.height
+                relacion_marco = marco_ancho / marco_alto
+                if relacion_original > relacion_marco:
+                    nuevo_ancho = marco_ancho
+                    nuevo_alto = int(marco_ancho / relacion_original)
+                else:
+                    nuevo_alto = marco_alto
+                    nuevo_ancho = int(marco_alto * relacion_original)
+                img_redimensionada = img_original.resize((nuevo_ancho, nuevo_alto), Image.LANCZOS)
+                self.img_victoria_tk = ImageTk.PhotoImage(img_redimensionada)
+                label_imagen = tk.Label(marco_imagen, image=self.img_victoria_tk, bg='white')
+                label_imagen.pack(expand=True)
+                label_ganador = tk.Label(marco_imagen, 
+                                        text=f"¡has ganado!",
+                                        font=("Helvetica", 16, "bold"), 
+                                        bg='white', fg="#5D00AF")
+                label_ganador.place(relx=0.5, rely=0.9, anchor='center')
+        except Exception as e:
+            print(f"Error al cargar imagen: {e}")
+            tk.Label(marco_imagen, 
+                    text=f"¡has ganado!\n\nVICTORIA",
+                    font=("Helvetica", 24, "bold"), 
+                    bg='white', fg="#5D00AF").pack(expand=True)
+        frame_botones = tk.Frame(ventana_victoria, bg="#EBCDFD")
+        frame_botones.pack(pady=(10, 20), fill='x')
+        tk.Button(
+            frame_botones,
+            text="Menú Principal",
+            command=lambda: [self.detener_sonido(), ventana_victoria.destroy(), self.return_to_main()],
+            bg="#5D00AF",
+            fg='white',
+            font=self.custom_font,
+            width=15
+        ).pack(padx=20, expand=True)
+
+    def mostrar_ventana_game_over(self, secuencias_completadas):
+        """Muestra ventana de game over con las secuencias completadas"""
+        if self.sonido_victoria:  # pendiente cambiar sonido para game over 
+            self.sonido_victoria.play()
+        self.root.withdraw()
+        
+        ventana_game_over = tk.Toplevel()
+        ventana_game_over.title("¡Game Over!")
+        
+        # Centrar en la pantalla
+        window_width = 600
+        window_height = 500
+        screen_width = ventana_game_over.winfo_screenwidth()
+        screen_height = ventana_game_over.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        ventana_game_over.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        
+        ventana_game_over.resizable(False, False)
+        ventana_game_over.configure(bg="#EBCDFD")
+        ventana_game_over.grab_set()
+        
+        ventana_game_over.protocol("WM_DELETE_WINDOW", lambda: None)  # Evitar que se cierre con la X
+        
+        marco_imagen = tk.Frame(ventana_game_over, bg='white', bd=3, relief='ridge')
+        marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
+        
+        try:
+            # Puedes cambiar por una imagen de game over si tienes
+            ruta_imagen = os.path.join("imagenespatrones", "GameOver.jpeg")  
+            if os.path.exists(ruta_imagen):
+                img_original = Image.open(ruta_imagen)
+                marco_ancho = 560
+                marco_alto = 400
+                
+                relacion_original = img_original.width / img_original.height
+                relacion_marco = marco_ancho / marco_alto
+                
+                if relacion_original > relacion_marco:
+                    nuevo_ancho = marco_ancho
+                    nuevo_alto = int(marco_ancho / relacion_original)
+                else:
+                    nuevo_alto = marco_alto
+                    nuevo_ancho = int(marco_alto * relacion_original)
+                
+                img_redimensionada = img_original.resize((nuevo_ancho, nuevo_alto), Image.LANCZOS)
+                self.img_gameover_tk = ImageTk.PhotoImage(img_redimensionada)
+                
+                label_imagen = tk.Label(marco_imagen, image=self.img_gameover_tk, bg='white')
+                label_imagen.pack(expand=True)
+                
+                # Mostrar secuencias completadas
+                label_secuencias = tk.Label(marco_imagen,
+                                        text=f"Secuencias completadas: {secuencias_completadas}",
+                                        font=("Helvetica", 14, "bold"),
+                                        bg="#5D00AF", fg="white")
+                label_secuencias.place(relx=0.5, rely=0.95, anchor='center')
+                
+            else:
+                # Si no hay imagen, mostrar solo texto
+                tk.Label(marco_imagen,
+                        text=f"¡Game Over!\n\nSecuencias completadas: {secuencias_completadas}",
+                        font=("Helvetica", 24, "bold"),
+                        bg="#5D00AF", fg="white").pack(expand=True)
+                        
+        except Exception as e:
+            print(f"Error al cargar imagen: {e}")
+            tk.Label(marco_imagen,
+                    text=f"¡Game Over!\n\nSecuencias completadas: {secuencias_completadas}",
+                    font=("Helvetica", 24, "bold"),
+                    bg='white', fg="#5D00AF").pack(expand=True)
+        
+        frame_botones = tk.Frame(ventana_game_over, bg="#EBCDFD")
+        frame_botones.pack(pady=(10, 20), fill='x')
+        
+        tk.Button(
+            frame_botones,
+            text="Reiniciar Juego",
+            command=lambda: [self.detener_sonido(), ventana_game_over.destroy(), self.root.deiconify(), self.reiniciar_juego()],
+            bg="#5D00AF",
+            activebackground="#FFB3F9",
+            fg='white',
+            activeforeground='black',
+            font=self.custom_font,
+            width=15,
+            height=20
+        ).pack(padx=20, expand=True)
+
+    def detener_sonido(self):
+        """Detiene el sonido de victoria"""
+        if self.sonido_victoria:
+            self.sonido_victoria.stop()
+
 
     def EnviarFunciones(self):
-        self.game.RecibirFunciones(self.actualizar_puntuacion)
-
-        #Reinicar boton de inicio
-        self.boton_inicio.config(text="INICIO", bg="#5D00AF")
+        self.game.RecibirFunciones(self.actualizar_puntuacion,self.mostrar_ventana_victoria)

@@ -336,10 +336,19 @@ class MemoryGameGUI:
         self.root.withdraw()
         ventana_victoria = tk.Toplevel()
         ventana_victoria.title("¡Victoria!")
-        ventana_victoria.geometry("600x500") 
+
+        #Centrar en la pantalla
+        window_width = 600
+        window_height = 500
+        screen_width = ventana_victoria.winfo_screenwidth()
+        screen_height = ventana_victoria.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        ventana_victoria.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        
         ventana_victoria.resizable(False, False)
         ventana_victoria.configure(bg='#F5C5DB')
-        ventana_victoria.grab_set()  
+        ventana_victoria.grab_set() 
 
         ventana_victoria.protocol("WM_DELETE_WINDOW", lambda: None) # Evitar que se cierre con la X
         marco_imagen = tk.Frame(ventana_victoria, bg='white', bd=3, relief='ridge')
