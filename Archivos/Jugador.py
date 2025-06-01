@@ -4,8 +4,10 @@ class Jugador:
         self.turno = False  # Indica si es su turno
         self.ParejasEncontradas = 0
         self.Fallos = 0
-        self.intentos = 0 
+        self.intentos = 0
+        self.Secuencias = 0
 
+    #Juego Memory
     def getFallos(self):
         return self.Fallos
     
@@ -38,3 +40,12 @@ class Jugador:
 
     def getIntentos(self):
         return self.intentos
+    
+    #Juego patrones
+    
+    def AumentaSecuencia(self):
+        self.Secuencias += 1
+    
+    def getSecuencias(self):
+        return self.Secuencias
+    

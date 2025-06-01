@@ -14,21 +14,20 @@ class PatternGameGUI:
         self.return_callback = return_callback
         self.root.protocol("WM_DELETE_WINDOW", self.return_to_main)
         self.root.title("Juego de Patrones")
-        
+        self.root.configure(bg="#F4E1FF")
+        self.game = PatternGame()
+        self.centrar_ventana()
+
+        #Musica
         if self.music_callback:
             self.music_callback("musica/audiopatrones.mp3")
-        
-        self.root.configure(bg="#F4E1FF")
-        
-        # Configuración de la ventana
-        self.centrar_ventana()
         
         # Variables de juego
         self.BOTON_ANCHO = 8
         self.BOTON_ALTO = 4
         self.colores = ["#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#E1BAFF",
                "#FFBAFF", "#D4C5B9", "#B3E5FC", "#F8BBD9", "#C8E6C8", "#DDB3FF", 
-               "#FFE4B5", "#FFCCCB", "#B3C6E7", "#C8E6A0"]
+               "#FF9E9E", "#FFCCCB", "#B3C6E7", "#C8E6A0"]
         
         self.botones = [[None for _ in range(4)] for _ in range(4)]
         
@@ -43,25 +42,23 @@ class PatternGameGUI:
         self.boton_inicio = None
         
         self.crear_interfaz()
+        self.enviarRoot()
+
+    def enviarRoot(self):
+        """Enviar Root a game"""
+        self.game.setRoot(self.root)
 
     def iniciar_juego(self):
-        """Función que se ejecuta cuando se presiona el botón INICIO"""
-        print("¡Juego iniciado!")
-        
-        # Cambiar el texto del botón temporalmente
+        """Función que inicia el juego"""
+        self.habilitar_botones()
         if self.boton_inicio:
             self.boton_inicio.config(text="¡INICIADO!", bg="#5D00AF")
+        #Mostrar el primer patron
+        self.game.MostrarPatron()
 
-        tk.Button(
-            self.root,
-            text="Volver al Menú",
-            command=self.return_to_main,
-            bg="#5D00AF",
-            fg='white',
-            font=("Helvetica", 10, "bold")
-        ).grid(row=7, column=0, columnspan=4, pady=10)
 
     def return_to_main(self):
+        """Cambia la música y ejecuta callback para volver al menú principal"""
         if self.music_callback:
             self.music_callback("musica/pantallaprincipal.mp3")
         if self.return_callback:
@@ -90,8 +87,6 @@ class PatternGameGUI:
         # Frame principal para los marcadores
         frame_marcadores = tk.Frame(self.root, bg="#EBD4FF", relief="ridge", bd=2)
         frame_marcadores.grid(row=0, column=0, columnspan=4, pady=10, padx=10, sticky="ew")
-        
-        # Configurar columnas del frame de marcadores
         frame_marcadores.grid_columnconfigure(0, weight=1)
         frame_marcadores.grid_columnconfigure(1, weight=1)
         frame_marcadores.grid_columnconfigure(2, weight=1)
@@ -152,7 +147,8 @@ class PatternGameGUI:
         self.label_tiempo.pack()
 
     def crear_interfaz(self):
-        # Crear marcadores superiores
+        """Esta funcion crea la matriz con botones"""
+        # Crear los marcadores superiores
         self.marcadores()
 
         # Tablero 4x4 - Asignar colores aleatorios
@@ -169,6 +165,7 @@ class PatternGameGUI:
                     height=self.BOTON_ALTO,
                     command=lambda r=i, c=j: self.presionar_boton(r, c),
                     bg="#5D00AF", 
+                    activebackground="#5D00AF",
                     font=("Arial", 20, "bold"),
                     relief="raised",
                     bd=3
@@ -181,11 +178,19 @@ class PatternGameGUI:
                     "revelado": False
                 }
 
+        #Enviar los botones para establecer el patron
+        self.game.SetBotones(self.botones)
+        self.game.EstablecerPatron()
+
+
         # Configurar grid para que los botones se expandan
-        for i in range(2, 6):  # Filas de botones (ahora empiezan en fila 2)
+        for i in range(2, 6): 
             self.root.grid_rowconfigure(i, weight=1)
-        for j in range(4):     # Columnas
+        for j in range(4):
             self.root.grid_columnconfigure(j, weight=1)
+
+        #Iniciar con los botones deshabilitados
+        self.deshabilitar_botones()
 
         tk.Button(
             self.root,
@@ -205,32 +210,58 @@ class PatternGameGUI:
             font=("Helvetica", 10, "bold")
         ).grid(row=7, column=0, columnspan=4, pady=10)
 
+        self.EnviarFunciones()
+
+    def deshabilitar_botones(self):
+        """Deshabilita todos los botones del tablero"""
+        for i in range(4):
+            for j in range(4):
+                btn = self.botones[i][j]["boton"]
+                btn.config(state="disabled")
+
+    def habilitar_botones(self):
+        """Habilita todos los botones del tablero"""
+        for i in range(4):
+            for j in range(4):
+                btn = self.botones[i][j]["boton"]
+                btn.config(state="normal")
+
     def presionar_boton(self, fila, columna):
-        """Revela el color cuando se presiona un botón"""
+        """Esta funcion verifica si el boton presionado esta en el orden correcto de la secuencia"""
         boton_info = self.botones[fila][columna]
         btn = boton_info["boton"]
         
-        if not boton_info["revelado"]:
-            # Revelar el color
+        # Revelar el color 
+        btn.config(
+            bg=boton_info["color"],
+            text=""
+        )
+        
+        # oculta el color
+        def OcultarBoton():
             btn.config(
-                bg=boton_info["color"],
-                text="",
-                relief="sunken"
+                bg="#5D00AF",
+                text=""
             )
-            boton_info["revelado"] = True
-            
-            # Incrementar puntuación
-            self.puntuacion += 10
-            self.actualizar_puntuacion()
+
+        self.root.after(500, OcultarBoton)
+        
+        #Aumenta el paso en el que se encuentra el jugador
+        self.game.AumentaPasoActual()
+
+        #Verifica el orden
+        if self.game.VerificaSecuencia(boton_info):
+            print("Win")
+            self.game.IniciaSecuencia()
         else:
-            # Si ya está revelado, hacer efecto visual
-            btn.config(relief="sunken")
-            self.root.after(150, lambda: btn.config(relief="raised"))
+            print("GameOver")
+
 
     def actualizar_puntuacion(self):
         """Actualiza el marcador de puntuación"""
-        if self.label_puntuacion:
-            self.label_puntuacion.config(text=str(self.puntuacion))
+        Jugador = self.game.obtenerJugador()
+        self.puntuacion = Jugador.getSecuencias()
+        self.label_puntuacion.config(text=str(self.puntuacion))
 
     def actualizar_tiempo(self):
         """Actualiza el marcador de tiempo"""
@@ -264,3 +295,9 @@ class PatternGameGUI:
                 # Actualizar información
                 self.botones[i][j]["color"] = color_nuevo
                 self.botones[i][j]["revelado"] = False
+
+    def EnviarFunciones(self):
+        self.game.RecibirFunciones(self.actualizar_puntuacion)
+
+        #Reinicar boton de inicio
+        self.boton_inicio.config(text="INICIO", bg="#5D00AF")
