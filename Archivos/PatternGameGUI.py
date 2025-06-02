@@ -35,6 +35,7 @@ class PatternGameGUI:
         # Variables de marcadores
         self.puntuacion = 0
         self.tiempo_restante = 12
+        self.tiempo_restante_casillas = 2.0
         
         # Variables de los widgets de marcadores
         self.label_titulo = None
@@ -45,6 +46,7 @@ class PatternGameGUI:
         self.crear_interfaz()
         self.enviarRoot()
         self.CargarSonidoVictoria()
+        self.CargarSonidoGameOver()
 
     def CargarSonidoVictoria(self):
         # Cargar sonido de victoria
@@ -54,6 +56,17 @@ class PatternGameGUI:
                 self.sonido_victoria = pygame.mixer.Sound(ruta_sonido)
         except Exception as e:
             print(f"No se pudo cargar sonido de victoria: {e}")
+
+    def CargarSonidoGameOver(self):
+        # Cargar sonido de victoria
+        try:
+            ruta_sonido = os.path.join("musica", "GameOver.mp3")
+            if os.path.exists(ruta_sonido):
+                self.sonido_GameOver = pygame.mixer.Sound(ruta_sonido)
+        except Exception as e:
+            print(f"No se pudo cargar sonido de victoria: {e}")
+
+        
 
     def enviarRoot(self):
         """Enviar Root a game"""
@@ -98,9 +111,12 @@ class PatternGameGUI:
         # Frame principal para los marcadores
         frame_marcadores = tk.Frame(self.root, bg="#EBD4FF", relief="ridge", bd=2)
         frame_marcadores.grid(row=0, column=0, columnspan=4, pady=10, padx=10, sticky="ew")
+        
+        # Configurar 4 columnas con pesos iguales
         frame_marcadores.grid_columnconfigure(0, weight=1)
         frame_marcadores.grid_columnconfigure(1, weight=1)
         frame_marcadores.grid_columnconfigure(2, weight=1)
+        frame_marcadores.grid_columnconfigure(3, weight=1)
         
         # Título del juego
         self.label_titulo = tk.Label(
@@ -110,24 +126,54 @@ class PatternGameGUI:
             fg="#5D00AF",
             bg="#EBD4FF"
         )
-        self.label_titulo.grid(row=0, column=0, columnspan=3, pady=10)
+        self.label_titulo.grid(row=0, column=0, columnspan=4, pady=10)
         
         # Marcador de puntuación
         frame_puntuacion = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
-        frame_puntuacion.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        frame_puntuacion.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         
         tk.Label(frame_puntuacion, text="Puntuación", 
-                font=("Arial", 12, "bold"), bg="#E5B7FF").pack()
+                font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
         self.label_puntuacion = tk.Label(
             frame_puntuacion,
             text=str(self.puntuacion),
-            font=("Arial", 16, "bold"),
+            font=("Arial", 14, "bold"),
             bg="#E5B7FF",
             fg="#5D00AF"
         )
         self.label_puntuacion.pack()
         
-        # Botón de inicio central
+        # Marcador de tiempo total
+        frame_tiempo = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
+        frame_tiempo.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
+        
+        tk.Label(frame_tiempo, text="Tiempo restante", 
+                font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
+        self.label_tiempo = tk.Label(
+            frame_tiempo,
+            text=str(self.tiempo_restante),
+            font=("Arial", 14, "bold"),
+            bg="#E5B7FF",
+            fg="#5D00AF"
+        )
+        self.label_tiempo.pack()
+
+        # Marcador de tiempo entre casillas
+        frame_tiempo_casillas = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
+        frame_tiempo_casillas.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
+        
+        tk.Label(frame_tiempo_casillas, text="Entre Casillas", 
+                font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
+        self.label_tiempo_casillas = tk.Label(
+            frame_tiempo_casillas,
+            text="2.0",
+            font=("Arial", 14, "bold"),
+            bg="#E5B7FF",
+            fg="#5D00AF"
+        )
+        self.label_tiempo_casillas.pack()
+        
+        # Botón de inicio
         self.boton_inicio = tk.Button(
             frame_marcadores,
             text="INICIO",
@@ -137,25 +183,10 @@ class PatternGameGUI:
             font=("Arial", 12, "bold"),
             relief="raised",
             bd=3,
-            padx=20,
+            padx=15,
             pady=5
         )
-        self.boton_inicio.grid(row=1, column=1, padx=10, pady=5)
-        
-        # Marcador de tiempo
-        frame_tiempo = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
-        frame_tiempo.grid(row=1, column=2, padx=10, pady=5, sticky="ew")
-        
-        tk.Label(frame_tiempo, text="Tiempo Restante", 
-                font=("Arial", 12, "bold"), bg="#E5B7FF").pack()
-        self.label_tiempo = tk.Label(
-            frame_tiempo,
-            text=str(self.tiempo_restante),
-            font=("Arial", 16, "bold"),
-            bg="#E5B7FF",
-            fg="#5D00AF"
-        )
-        self.label_tiempo.pack()
+        self.boton_inicio.grid(row=1, column=3, padx=5, pady=5)
 
     def crear_interfaz(self):
         """Esta funcion crea la matriz con botones"""
@@ -262,12 +293,14 @@ class PatternGameGUI:
 
         #Verifica el orden
         if self.game.VerificaSecuencia(boton_info):
+            #Verifica si se debe iniciar una nueva secuencia o continuar
             self.game.IniciaSecuencia()
         else:
             jugador = self.game.getJugador()
             secuencias = jugador.getSecuencias()
+            self.game.pausar_cronometro_casillas()
+            self.game.pausar_cronometro_general()
             self.mostrar_ventana_game_over(secuencias)
-            self.game.detener_cronometro_completamente()
 
 
     def actualizar_puntuacion(self):
@@ -276,10 +309,16 @@ class PatternGameGUI:
         self.puntuacion = Jugador.getSecuencias()
         self.label_puntuacion.config(text=str(self.puntuacion))
 
+
     def actualizar_tiempo(self):
         """Actualiza el marcador de tiempo"""
         self.tiempo_restante = self.game.getTiempoRestante()
         self.label_tiempo.config(text=str(self.tiempo_restante))
+
+    def actualizar_tiempo_casillas(self):
+        """Actualiza el marcador de tiempo entre casillas"""
+        self.tiempo_restante_casillas = self.game.getTiempoRestanteCasillas()
+        self.label_tiempo_casillas.config(text=str(self.tiempo_restante_casillas))
 
     def reiniciar_juego(self):
         """Reinicia el juego ocultando todos los botones y reorganizando colores"""
@@ -289,6 +328,7 @@ class PatternGameGUI:
         # Reiniciar marcadores visuales
         self.actualizar_puntuacion()
         self.actualizar_tiempo()
+        self.actualizar_tiempo_casillas()
 
         # Reorganizar colores
         colores_patron = self.colores.copy()
@@ -384,8 +424,8 @@ class PatternGameGUI:
 
     def mostrar_ventana_game_over(self, secuencias_completadas):
         """Muestra ventana de game over con las secuencias completadas"""
-        if self.sonido_victoria:  # pendiente cambiar sonido para game over 
-            self.sonido_victoria.play()
+        if self.sonido_GameOver:  # pendiente cambiar sonido para game over 
+            self.sonido_GameOver.play()
         self.root.withdraw()
         
         ventana_game_over = tk.Toplevel()
@@ -476,4 +516,6 @@ class PatternGameGUI:
 
 
     def EnviarFunciones(self):
-        self.game.RecibirFunciones(self.actualizar_puntuacion, self.mostrar_ventana_victoria, self.actualizar_tiempo, self.mostrar_ventana_game_over)
+        self.game.RecibirFunciones(self.actualizar_puntuacion, self.actualizar_tiempo, 
+                                   self.actualizar_tiempo_casillas,self.mostrar_ventana_victoria, 
+                                   self.mostrar_ventana_game_over, self.deshabilitar_botones,self.habilitar_botones)
