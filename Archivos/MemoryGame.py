@@ -156,6 +156,7 @@ class MemoryGame:
                     self.root.after(0, self.tiempo_agotado)
             except (tk.TclError, RuntimeError):
                 pass
+            
     def actualizar_display(self):
         """Actualiza el tiempo en pantalla cada segundo"""
         if self.turno_actual == 0:

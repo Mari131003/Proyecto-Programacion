@@ -264,21 +264,22 @@ class PatternGameGUI:
         if self.game.VerificaSecuencia(boton_info):
             self.game.IniciaSecuencia()
         else:
-            jugador = self.game.obtenerJugador()
+            jugador = self.game.getJugador()
             secuencias = jugador.getSecuencias()
             self.mostrar_ventana_game_over(secuencias)
+            self.game.detener_cronometro_completamente()
 
 
     def actualizar_puntuacion(self):
         """Actualiza el marcador de puntuación"""
-        Jugador = self.game.obtenerJugador()
+        Jugador = self.game.getJugador()
         self.puntuacion = Jugador.getSecuencias()
         self.label_puntuacion.config(text=str(self.puntuacion))
 
     def actualizar_tiempo(self):
         """Actualiza el marcador de tiempo"""
-        if self.label_tiempo:
-            self.label_tiempo.config(text=str(self.tiempo_restante))
+        self.tiempo_restante = self.game.getTiempoRestante()
+        self.label_tiempo.config(text=str(self.tiempo_restante))
 
     def reiniciar_juego(self):
         """Reinicia el juego ocultando todos los botones y reorganizando colores"""
@@ -286,7 +287,6 @@ class PatternGameGUI:
         self.game.reiniciar()
         
         # Reiniciar marcadores visuales
-        self.tiempo_restante = 12
         self.actualizar_puntuacion()
         self.actualizar_tiempo()
 
@@ -410,7 +410,6 @@ class PatternGameGUI:
         marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
         
         try:
-            # Puedes cambiar por una imagen de game over si tienes
             ruta_imagen = os.path.join("imagenespatrones", "GameOver.jpeg")  
             if os.path.exists(ruta_imagen):
                 img_original = Image.open(ruta_imagen)
@@ -477,4 +476,4 @@ class PatternGameGUI:
 
 
     def EnviarFunciones(self):
-        self.game.RecibirFunciones(self.actualizar_puntuacion,self.mostrar_ventana_victoria)
+        self.game.RecibirFunciones(self.actualizar_puntuacion, self.mostrar_ventana_victoria, self.actualizar_tiempo, self.mostrar_ventana_game_over)

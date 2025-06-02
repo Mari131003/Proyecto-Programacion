@@ -12,10 +12,18 @@ class PatternGame:
         self.jugador = Jugador("Jugador")
         self.botones = []
         self.Patron = []
-        self.SecuenciaActual = 1
+        self.SecuenciaActual = 3
         self.PasoActual = 0
         self.actualizar_puntuacion = None
         self.mostrar_ventana_victoria = None
+        self.mostrar_ventana_game_over = None
+        self.actualizar_tiempo = None
+
+        #Tiempo
+        self.ejecutando = False
+        self.hilo_cronometro = None
+        self.cronometro_activo = True
+        self.tiempo_restante = 12
 
     #SETS Y GETS
 
@@ -38,15 +46,82 @@ class PatternGame:
         """Establece root para ser utilizada en la clase"""
         self.root = root
 
-    #Obtener jugador
-    def obtenerJugador(self):
+    #get de jugador
+    def getJugador(self):
         return self.jugador
     
     #Obtener funciones importantes
-    def RecibirFunciones(self,funcion1, funcion2):
+    def RecibirFunciones(self, funcion1, funcion2, funcion3, funcion4):
         self.actualizar_puntuacion = funcion1
         self.mostrar_ventana_victoria = funcion2
+        self.actualizar_tiempo = funcion3
+        self.mostrar_ventana_game_over = funcion4
+
+
+    # get tiempo restante
+    def getTiempoRestante(self):
+        return self.tiempo_restante
+
+
+    #TIEMPO
+
+    def iniciar_cronometro(self):
+        """Inicia el cronometro del jugador actual"""
+        # Detener cronómetro anterior completamente
+        self.detener_cronometro_completamente()
+        
+        # Reiniciar el tiempo
+        self.ejecutando = True
+
+        #Crear Hilo
+        self.hilo_cronometro = threading.Thread(target=self.ejecutar_cronometro)
+        self.hilo_cronometro.daemon = True
+        self.hilo_cronometro.start()
+
+    def ejecutar_cronometro(self):
+        """Permite que el tiempo avance, ejecutando el cronometro del jugador"""
+        while self.ejecutando and self.tiempo_restante > 0:
+            time.sleep(1)
+            if not self.ejecutando:
+                break
+
+            self.tiempo_restante -= 1
+            try:
+                if self.root and self.root.winfo_exists():
+                    self.root.after(0, self.actualizar_display)
+            except (tk.TclError, RuntimeError):
+                break 
+
+        if self.tiempo_restante <= 0 and self.ejecutando:
+            try:
+                if self.root and self.root.winfo_exists():
+                    self.root.after(0, self.tiempo_agotado)
+            except (tk.TclError, RuntimeError):
+                pass
             
+    def actualizar_display(self):
+        """Actualiza el tiempo en pantalla cada segundo"""
+        self.actualizar_tiempo()
+
+    def detener_cronometro_completamente(self):
+        """Detiene completamente el cronómetro y limpia el hilo"""
+        self.ejecutando = False
+        self.tiempo_restante = 12
+        if self.hilo_cronometro and self.hilo_cronometro.is_alive():
+            self.hilo_cronometro.join()
+        self.hilo_cronometro = None
+
+    def pausar_cronometro(self):
+        """Pausa en cronometro"""
+        self.ejecutando = False
+
+    def tiempo_agotado(self):
+        """Llama a la funcion game over y pausa el cronometro"""
+        self.detener_cronometro_completamente()
+        SecuenciasCompletadas = self.jugador.getSecuencias()
+        self.mostrar_ventana_game_over(SecuenciasCompletadas)
+
+
     #JUEGO
 
     def inicializarTablero(self):
@@ -78,6 +153,8 @@ class PatternGame:
                 # Cambiar el color del botón para "mostrarlo"
                 boton_actual['boton'].config(bg=boton_actual['color'])
                 self.root.after(500, lambda: ocultar_boton(indice))
+            else:
+                self.iniciar_cronometro()
             
         def ocultar_boton(indice):
             # Restaurar color original
@@ -86,6 +163,7 @@ class PatternGame:
             
             # Mostrar siguiente boton luego de una pausa
             self.root.after(700, lambda: mostrar_boton(indice + 1))
+            
         
         mostrar_boton(0)
 
@@ -101,7 +179,14 @@ class PatternGame:
     def IniciaSecuencia(self):
         """Verifica si se ha completado la secuencia y vuelve a mostrarla en pantalla sumandole 1 a la secuencia actual"""
         if self.PasoActual == self.SecuenciaActual:
+
+            #Detenemos el tiempo
+            self.pausar_cronometro()
+            self.tiempo_restante = 12
+            self.actualizar_tiempo()
+
             if self.SecuenciaActual == 16:
+                self.detener_cronometro_completamente()
                 self.mostrar_ventana_victoria()
             else:
                 self.jugador.AumentaSecuencia()
@@ -111,10 +196,11 @@ class PatternGame:
                 self.root.after(1500, self.MostrarPatron)
 
     def reiniciar(self):
+        self.detener_cronometro_completamente()
         self.jugador.setSecuencias(0)
         self.botones = []
         self.Patron = []
-        self.SecuenciaActual = 1
+        self.SecuenciaActual = 3
         self.PasoActual = 0
 
 
