@@ -1,62 +1,60 @@
 import requests
-from datetime import datetime
 import xml.etree.ElementTree as ET
+from datetime import datetime
+import pickle
+import os
 
 class Premios:
-    def __init__(self,test_mode=False):
-        # Código para consulta de tipos de cambio (inactivo por ahora)
-        self.correo = "mariajosesolano14@gmail.com"  # Reemplazar con tu correo
-        self.token = "OJ9PAAOAL2"  # Reemplazar con tu token
-        self.url = (
-                   "https://gee.bccr.fi.cr/Indicadores/Suscripciones/WS/wsindicadoreseconomicos.asmx/"
-            "ObtenerIndicadoresEconomicos"  # URL del servicio web del BCCR. Está en la documentación oficial del BCCR
-        ) 
-        
-        if test_mode:  # Si estamos en modo prueba
-            self.test_connection()
+    def __init__(self, test_mode=False):
+        self.correo = "mariajosesolano14@gmail.com"
+        self.token = "OJ9PAAOAL2"
+        self.url = "https://gee.bccr.fi.cr/Indicadores/Suscripciones/WS/wsindicadoreseconomicos.asmx/ObtenerIndicadoresEconomicos"
+        self.tipo_cambio = self.obtener_venta() if not test_mode else 505  # Valor de prueba
 
-    def test_connection(self):
-        """Prueba la conexión e imprime resultados en consola"""
-        print("\n=== PRUEBA DE CONEXIÓN AL BCCR ===")
+    def calcular_premio(self, intentos: int) -> float:
+        """Calcula el premio en colones"""
         try:
-            compra = self.obtener_compra()
-            venta = self.obtener_venta()
-            print(f"Tipo de cambio de compra: {compra}")
-            print(f"Tipo de cambio de venta: {venta}")
-            print("=== PRUEBA EXITOSA ===\n")
-        except requests.RequestException as e:
-            print(f"Error al consultar el servicio del BCCR: {e}")
-            print("=== PRUEBA FALLIDA ===\n")
+            return (1 / intentos) * 100 * self.tipo_cambio
+        except ZeroDivisionError:
+            return 0.0
 
-    def obtener_tipo_cambio(self, indicador: str, fecha: datetime = None) -> float:
-        """Método para obtener tipo de cambio (no se ejecuta automáticamente)"""
-        if fecha is None:
-            fecha = datetime.now()
-
-        fecha_str = fecha.strftime("%d/%m/%Y")
-        
-
+    def obtener_tipo_cambio(self, indicador: str) -> float:
+        fecha = datetime.now().strftime("%d/%m/%Y")
         params = {
             "Indicador": indicador,
-            "FechaInicio": fecha_str,
-            "FechaFinal": fecha_str,
-            "Nombre": "consulta-api",
+            "FechaInicio": fecha,
+            "FechaFinal": fecha,
+            "Nombre": "PremiosApp",
             "SubNiveles": "N",
             "CorreoElectronico": self.correo,
             "Token": self.token
         }
-
         response = requests.get(self.url, params=params)
         response.raise_for_status()
-
         root = ET.fromstring(response.text)
-        valor = root.find('.//NUM_VALOR')
-        return float(valor.text) if valor is not None else None
-
-    def obtener_compra(self) -> float:
-        """Obtiene tipo de cambio de compra (317)"""
-        return self.obtener_tipo_cambio("317")
+        valor = root.find('.//NUM_VALOR').text
+        return float(valor)
 
     def obtener_venta(self) -> float:
-        """Obtiene tipo de cambio de venta (318)"""
         return self.obtener_tipo_cambio("318")
+
+    def obtener_top5(self) -> list:
+        """Devuelve los top 5 jugadores con premios calculados"""
+        try:
+            if not os.path.exists("puntajes_memory.pkl"):
+                return []
+            
+            with open("puntajes_memory.pkl", 'rb') as f:
+                puntajes = pickle.load(f)
+            
+            # Calcular premio para cada jugador
+            for jugador in puntajes:
+                jugador['premio'] = self.calcular_premio(jugador['intentos'])
+            
+            # Ordenar por premio (mayor primero)
+            puntajes.sort(key=lambda x: x['premio'], reverse=True)
+            
+            return puntajes[:5]
+        except Exception as e:
+            print(f"Error obteniendo top 5: {e}")
+            return []

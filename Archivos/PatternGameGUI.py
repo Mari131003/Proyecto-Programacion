@@ -87,6 +87,7 @@ class PatternGameGUI:
             self.music_callback("musica/pantallaprincipal.mp3")
         if self.return_callback:
             self.return_callback()
+        
 
     def centrar_ventana(self):
         """Centra la ventana en el centro exacto de la pantalla"""

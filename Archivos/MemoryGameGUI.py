@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import PhotoImage, font
 from PIL import Image, ImageTk 
 import pygame
+import pickle
 import os
 import random
 from MemoryGame import MemoryGame
@@ -35,6 +36,7 @@ class MemoryGameGUI:
         self.game.Recibir_VentanasGane(self.mostrar_ventana_victoria)
         pygame.mixer.init()
         self.sonido_victoria = None
+        self.puntajes_file = "puntajes_memory.pkl"
     
         # Cargar sonido de victoria
         try:
@@ -58,6 +60,7 @@ class MemoryGameGUI:
             self.music_callback("musica/pantallaprincipal.mp3")
         if self.return_callback:
             self.return_callback()
+        
 
     #Enviar Root a game
     def enviarRoot(self):
@@ -355,7 +358,7 @@ class MemoryGameGUI:
         marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
         try:
             #ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpeg")
-            ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpg")
+            ruta_imagen = os.path.join("imagenesmemoria", "victoria.jpeg")
             if os.path.exists(ruta_imagen):
                 img_original = Image.open(ruta_imagen)
                 marco_ancho = 560  # Calcular relación de aspecto
@@ -403,7 +406,36 @@ class MemoryGameGUI:
             font=self.custom_font,
             width=15
         ).pack(side='right', padx=20, expand=True)
+        if ganador == "Jugador 1":
+            intentos = self.game.jugador1.getIntentos()
+        else:
+            intentos = self.game.jugador2.getIntentos()
+    
+        self.guardar_resultado(ganador, intentos)
 
+    def guardar_resultado(self, nombre, intentos):
+        """Guarda los resultados en archivo PKL"""
+        try:
+            # Cargar datos existentes o crear nueva lista
+            if os.path.exists(self.puntajes_file):
+                with open(self.puntajes_file, 'rb') as f:
+                    puntajes = pickle.load(f)
+            else:
+                puntajes = []
+        
+            # Añadir nuevo resultado con timestamp
+            nuevo_puntaje = {
+                'nombre': nombre,
+                'intentos': intentos,
+            }
+            puntajes.append(nuevo_puntaje)
+        
+            # Guardar
+            with open(self.puntajes_file, 'wb') as f:
+                pickle.dump(puntajes, f)
+            
+        except Exception as e:
+            print(f"Error guardando puntaje: {e}")
 
     def detener_sonido(self):
         """Detiene el sonido de victoria"""
