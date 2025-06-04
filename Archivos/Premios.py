@@ -9,7 +9,12 @@ class Premios:
         self.correo = "mariajosesolano14@gmail.com"
         self.token = "OJ9PAAOAL2"
         self.url = "https://gee.bccr.fi.cr/Indicadores/Suscripciones/WS/wsindicadoreseconomicos.asmx/ObtenerIndicadoresEconomicos"
-        self.tipo_cambio = self.obtener_venta() if not test_mode else 505  # Valor de prueba
+        self.tipo_cambio = self.obtener_venta()  # Valor de prueba
+
+        if test_mode:
+            print(f"[DEBUG] Modo prueba: Tipo de cambio = {self.tipo_cambio}")
+        else:
+            print(f"[DEBUG] Tipo de cambio real obtenido = {self.tipo_cambio}")
 
     def calcular_premio(self, intentos: int) -> float:
         """Calcula el premio en colones"""
