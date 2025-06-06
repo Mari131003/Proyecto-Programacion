@@ -37,8 +37,20 @@ class MemoryGameGUI:
         pygame.mixer.init()
         self.sonido_victoria = None
         self.puntajes_file = "puntajes_memory.pkl"
-    
-        # Cargar sonido de victoria
+        self.window_width = 1180
+        self.window_height = 770
+        self.center_window()
+        self.cargarSonidoVictoria()
+
+    def return_to_main(self):
+        """Regresa a la pantalla principal del juego"""
+        if self.music_callback:
+            self.music_callback("musica/pantallaprincipal.mp3")
+        if self.return_callback:
+            self.return_callback()
+
+    def cargarSonidoVictoria(self):
+        """ Cargar sonido de victoria """
         try:
             ruta_sonido = os.path.join("musica", "victoria.mp3")
             if os.path.exists(ruta_sonido):
@@ -46,28 +58,28 @@ class MemoryGameGUI:
         except Exception as e:
             print(f"No se pudo cargar sonido de victoria: {e}")
 
-        tk.Button(
-            self.root,
-            text="Volver al Menú",
-            command=self.return_to_main,
-            bg="#B22F70",
-            fg='white',
-            font=self.custom_font
-        ).grid(row=8, column=0, columnspan=13, pady=10)
 
-    def return_to_main(self):
-        if self.music_callback:
-            self.music_callback("musica/pantallaprincipal.mp3")
-        if self.return_callback:
-            self.return_callback()
-        
 
-    #Enviar Root a game
     def enviarRoot(self):
+        """Enviar Root a game"""
         self.game.setRoot(self.root)
 
-    def crear_marcadores(self):
+    def center_window(self):
+        """Centrar la ventana en la pantalla"""
+        # Obtener dimensiones de la pantalla
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        
+        # Calcular posición central
+        center_x = int(screen_width/2 - self.window_width/2)
+        center_y = int(screen_height/2 - self.window_height/2)
+        
+        # Aplicar geometría
+        self.root.geometry(f'{self.window_width}x{self.window_height}+{center_x}+{center_y}')
+        self.root.resizable(False, False)    
 
+    def crear_marcadores(self):
+        """Crear los marcadores de informacion importante"""
         #Crear frame para contener los marcadores
         marcadores_frame = tk.Frame(self.root, bg="#F5C5DB")
         marcadores_frame.grid(row=0, column=0, columnspan=13, sticky="nsew")
@@ -120,8 +132,9 @@ class MemoryGameGUI:
 
         self.EnviarMarcadores()
 
-    #Enviar marcadores a la clase game
+    
     def EnviarMarcadores(self):
+        """Enviar marcadores a la clase game"""
         #Enviamos marcadores de tiempo (para actualizarlos cada segundo)
         self.game.setMarcadores(self.marcador_tiempo1,self.marcador_tiempo2)
 
@@ -134,6 +147,7 @@ class MemoryGameGUI:
 
 
     def actualizar_marcadores(self):
+        """Actualiza los marcadores con los valores actuales"""
         self.marcador_parejas1.config(text=f"Parejas: {self.game.jugador1.getParejasEncontradas()}")
         self.marcador_parejas2.config(text=f"Parejas: {self.game.jugador2.getParejasEncontradas()}")
         self.marcador_fallos1.config(text=f"Fallos: {self.game.jugador1.getFallos()}")
@@ -142,10 +156,11 @@ class MemoryGameGUI:
         self.marcador_turno.config(text=f"Turno: {jugador_actual}")
 
     def crear_imagen_oculta(self):
-        img = Image.new("RGB", (self.BOTON_ANCHO, self.BOTON_ALTO), color="#F3B3D1")
+        img = Image.new("RGB", (self.BOTON_ANCHO, self.BOTON_ALTO), color="#FF97CB")
         return ImageTk.PhotoImage(img)
 
     def cargar_imagenes(self):
+        """Carga todas las imagenes"""
         imagenes = []
         for i in range(1,19):
             try:
@@ -158,7 +173,7 @@ class MemoryGameGUI:
                     raise FileNotFoundError(f"Archivo {ruta} no encontrado")
             except Exception as e:
                 print(f"Error al cargar imagen {i}: {e}")
-                img_respaldo = Image.new("RGB", (self.BOTON_ANCHO, self.BOTON_ALTO), color="#FF69B4")
+                img_respaldo = Image.new("RGB", (self.BOTON_ANCHO, self.BOTON_ALTO), color="#FF87C3")
                 imagenes.append(ImageTk.PhotoImage(img_respaldo))
         return imagenes
 
@@ -222,6 +237,15 @@ class MemoryGameGUI:
             activeforeground='white',
             font=self.custom_font
         ).grid(row=7, column=0, columnspan=13, pady=10)
+
+        tk.Button(
+            self.root,
+            text="Volver al Menú",
+            command=self.return_to_main,
+            bg="#B22F70",
+            fg='white',
+            font=self.custom_font
+        ).grid(row=8, column=0, columnspan=13, pady=10)
 
         # Iniciar con los botones del tablero 2 deshabilitados
         for fila in self.botones_tablero2:

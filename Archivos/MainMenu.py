@@ -22,6 +22,11 @@ class MainMenu:
         self.child_window = None
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
+        # Configuracion de la ventana
+        self.window_width = 1000
+        self.window_height = 700
+        self.center_window()
+
     def play_musica(self,file_path,loop=True):
         if not os.path.exists(file_path):
             print("Audio no encontrado:,{file_path}")
@@ -44,6 +49,19 @@ class MainMenu:
     def stop_music(self):
         pygame.mixer.music.stop()
         self.current_music=None
+
+    def center_window(self):
+        """Centra la ventana en la pantalla"""
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        
+        # Calcular la posición x, y para centrar la ventana
+        center_x = int(screen_width/2 - self.window_width/2)
+        center_y = int(screen_height/2 - self.window_height/2)
+        
+        # Calcula el centro
+        self.root.geometry(f'{self.window_width}x{self.window_height}+{center_x}+{center_y}')
+        self.root.resizable(False, False)    
         
     def create_widgets(self):
         main_frame = tk.Frame(self.root)
@@ -113,8 +131,23 @@ class MainMenu:
         self.root.withdraw() 
         premios_window = tk.Toplevel()
         premios_window.title("Ventana Premios")
-        premios_window.geometry("800x600")
         premios_window.configure(background='#D6EADF')
+
+        # CENTRAR LA VENTANA
+        window_width = 800
+        window_height = 600
+        
+        # Obtener dimensiones de la pantalla
+        screen_width = premios_window.winfo_screenwidth()
+        screen_height = premios_window.winfo_screenheight()
+        
+        # Calcular posición central
+        center_x = int(screen_width/2 - window_width/2)
+        center_y = int(screen_height/2 - window_height/2)
+        
+        # Aplicar geometría centrada
+        premios_window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+        premios_window.resizable(False, False)
     
         # Configura el cierre para volver al menú
         premios_window.protocol("WM_DELETE_WINDOW", lambda: self.return_from_premios_window(premios_window))
