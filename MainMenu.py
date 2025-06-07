@@ -10,8 +10,9 @@ from datetime import datetime
 import pickle
 
 class MainMenu:
-    def __init__(self, root):
+    def __init__(self, root,username=None):
         self.root = root
+        self.username = username
         self.root.title("Menú Principal")
         self.root.geometry("1200x750")
         self.custom_font = font.Font(family="Helvetica", size=12, weight="bold")
@@ -21,6 +22,8 @@ class MainMenu:
         self.create_widgets()
         self.child_window = None
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        if username:
+            print(f"Usuario logueado: {username}")
 
         # Configuracion de la ventana
         self.window_width = 1000
