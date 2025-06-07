@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 from MainMenu import MainMenu
+from face_gui import Face_Recognition
 
 class LoginMemory:
     def __init__(self, root):
@@ -102,6 +103,8 @@ class LoginMemory:
             relief=tk.FLAT,
             command=self.login
         ).pack(fill=tk.X, pady=(0, 15))
+
+        
         tk.Button(                           # Reconocimiento facial
             form_frame, 
             text="Reconocimiento facial", 
@@ -240,7 +243,6 @@ class LoginMemory:
             return
         if username in self.users and self.users[username] == password:
             self.open_main_menu(username)
-            messagebox.showinfo("Login", f"Bienvenido, {username}!")
         else:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos")
 
@@ -273,4 +275,10 @@ class LoginMemory:
         self.show_login_window()
     
     def face_recognition(self):
-        messagebox.showinfo("Reconocimiento facial", "Función de reconocimiento facial activada")
+        """Abre el sistema de reconocimiento facial"""
+        try:
+            sistema = Face_Recognition()
+            # La ventana se abre automáticamente
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al abrir reconocimiento facial: {e}")
+
