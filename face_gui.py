@@ -21,11 +21,11 @@ class Face_Recognition:
     def setup_gui(self):
         """Configurar la interfaz gráfica"""
         # Colores del tema naranja 
-        primary_color = "#FFB347"     # Naranja pastel principal
-        secondary_color = "#FFD89C"   # Naranja pastel más claro
-        accent_color = "#FF8C00"      # Naranja más oscuro para acentos
-        text_color = "#000000"        # Color de texto negro
-        bg_color = "#FFEBD7"          # Fondo naranja muy claro
+        primary_color = "#FFB347"    
+        secondary_color = "#FFD89C"   
+        accent_color = "#FF8C00"      
+        text_color = "#000000"        
+        bg_color = "#FFEBD7"          
         
         self.root.title("Reconocimiento Facial")
         self.root.geometry("500x550")
@@ -135,11 +135,11 @@ class Face_Recognition:
     def SolicitarNombre(self):
         """Ventana bonita para solicitar nombre de usuario"""
         # Colores del tema naranja
-        primary_color = "#FFB347"     # Naranja pastel principal
-        secondary_color = "#FFD89C"   # Naranja pastel más claro
-        accent_color = "#FF8C00"      # Naranja más oscuro para acentos
-        text_color = "#000000"        # Color de texto negro
-        bg_color = "#FFEBD7"          # Fondo naranja muy claro
+        primary_color = "#FFB347"    
+        secondary_color = "#FFD89C"   
+        accent_color = "#FF8C00"      
+        text_color = "#000000"        
+        bg_color = "#FFEBD7"          
         
         # Variables para el resultado
         self.nombre_resultado = None
@@ -152,7 +152,7 @@ class Face_Recognition:
         nombre_window.resizable(False, False)
         nombre_window.configure(bg=bg_color)
         nombre_window.transient(self.root)  # Mantener siempre encima de la ventana principal
-        nombre_window.grab_set()  # Modal - bloquear interacción con ventana principal
+        nombre_window.grab_set()  # Bloquear interacción con ventana principal
         
         # Centrar la ventana
         x = (nombre_window.winfo_screenwidth() - 400) // 2
@@ -301,9 +301,9 @@ class Face_Recognition:
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 cv2.putText(frame, f"Captura {count}/10", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-            if count == 1:  # Solo configurar la primera vez
+            #Centrar en la pantalla la ventana de camara
+            if count == 1:  
                 cv2.namedWindow("Registrando rostro", cv2.WINDOW_NORMAL)
-                # Centrar en pantalla (ajusta los valores según tu resolución)
                 cv2.moveWindow("Registrando rostro", 400, 200)
 
             cv2.imshow("Registrando rostro", frame)
@@ -415,6 +415,7 @@ class Face_Recognition:
                         cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
                         cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
 
+                        #Si fue reconocido, puede ingresar al juego
                         if recognized:
                             cv2.imshow("Login con rostro", frame)
                             cv2.waitKey(1000)

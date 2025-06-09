@@ -16,10 +16,10 @@ class LoginMemory:
         self.root.configure(bg="#FFEBD7")
         self.center_window()
         # Colores
-        self.primary_color = "#FFB347"     # Naranja pastel principal
-        self.secondary_color = "#FFD89C"   # Naranja pastel más claro
-        self.accent_color = "#FF8C00"     # Naranja más oscuro para acentos
-        self.text_color = "#000000"       # Color de texto negro
+        self.primary_color = "#FFB347"     
+        self.secondary_color = "#FFD89C"   
+        self.accent_color = "#FF8C00"     
+        self.text_color = "#000000"       
         self.users = {}
         self.load_users()
         self.create_login_widgets()
@@ -107,8 +107,8 @@ class LoginMemory:
             command=self.login
         ).pack(fill=tk.X, pady=(0, 15))
 
-        
-        tk.Button(                           # Reconocimiento facial
+        # Reconocimiento facial
+        tk.Button(                           
             form_frame, 
             text="Reconocimiento facial", 
             font=("Arial", 10), 
@@ -121,8 +121,11 @@ class LoginMemory:
             highlightthickness=2,
             command=self.face_recognition
         ).pack(fill=tk.X)
+
         tk.Frame(self.login_frame, height=1, bg="lightgray").pack(fill=tk.X, pady=10) # Separador
-        tk.Button(                            # Botón de registro
+
+        # Botón de registro
+        tk.Button(                            
             self.login_frame, 
             text="Crear cuenta nueva", 
             font=("Arial", 12), 
@@ -133,7 +136,9 @@ class LoginMemory:
             relief=tk.FLAT,
             command=self.show_register_window
         ).pack(fill=tk.X, pady=(5, 15))
-        tk.Button(                            # Botón de salir
+
+        # Botón de salir
+        tk.Button(                            
             self.login_frame, 
             text="Salir", 
             font=("Arial", 10), 
@@ -239,6 +244,7 @@ class LoginMemory:
         self.register_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
     
     def login(self):
+        """Valida credenciales de usuario y abre el menú principal."""
         username = self.username_entry.get()
         password = self.password_entry.get()
         if not username or not password:
@@ -251,15 +257,13 @@ class LoginMemory:
 
     def open_main_menu(self, username):
         """Cierra el login y abre el MainMenu"""
-        self.root.destroy()
+        self.root.destroy()  # DESTRUIR en lugar de withdraw
         root = tk.Tk()
-        app = MainMenu(root, username)
+        app = MainMenu(root, username)  # SIN callback
         root.mainloop()
-        # Crear instancia del MainMenu
-        #self.main_menu = MainMenu(self.root, username)  # Pasa el username si es necesario
-        #self.main_menu.pack(fill=tk.BOTH, expand=True)
     
     def register_user(self):
+        """Obtiene y guarda el usuario y la contraeña de alguien al registrarse"""
         username = self.new_user_entry.get()
         password = self.new_pass_entry.get()
         confirm_pass = self.confirm_pass_entry.get()
@@ -286,3 +290,9 @@ class LoginMemory:
             root.mainloop()
         except Exception as e:
             messagebox.showerror("Error", f"Error al abrir reconocimiento facial: {e}")
+
+    def create_new_login(self):
+        """Crea una nueva ventana de login después del logout"""
+        root = tk.Tk()
+        app = LoginMemory(root)
+        root.mainloop()
