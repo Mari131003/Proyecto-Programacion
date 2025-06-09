@@ -1,12 +1,15 @@
 import tkinter as tk
 from tkinter import messagebox
 import os
+import time
 from MainMenu import MainMenu
 from face_gui import Face_Recognition
+
 
 class LoginMemory:
     def __init__(self, root):
         self.root = root
+        self.face_window = None
         self.root.title("Log in")
         self.root.geometry("400x500")
         self.root.resizable(False, False)
@@ -273,12 +276,13 @@ class LoginMemory:
         self.save_users()  # Guardar en archivo
         messagebox.showinfo("Éxito", "¡Registro exitoso!")
         self.show_login_window()
-    
+ 
     def face_recognition(self):
         """Abre el sistema de reconocimiento facial"""
         try:
-            sistema = Face_Recognition()
-            # La ventana se abre automáticamente
+            self.root.destroy()
+            root = tk.Tk()
+            app = Face_Recognition(root)
+            root.mainloop()
         except Exception as e:
             messagebox.showerror("Error", f"Error al abrir reconocimiento facial: {e}")
-

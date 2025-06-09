@@ -7,7 +7,6 @@ from Premios import Premios
 import pygame
 import os
 from datetime import datetime
-import pickle
 
 class MainMenu:
     def __init__(self, root,username=None):
@@ -15,15 +14,13 @@ class MainMenu:
         self.username = username
         self.root.title("Menú Principal")
         self.root.geometry("1200x750")
-        self.custom_font = font.Font(family="Helvetica", size=12, weight="bold")
+        self.custom_font = ("Helvetica", 12,"bold")
         pygame.mixer.init()
         self.current_music=None
         self.play_musica("musica/pantallaprincipal.mp3")
         self.create_widgets()
         self.child_window = None
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-        if username:
-            print(f"Usuario logueado: {username}")
 
         # Configuracion de la ventana
         self.window_width = 1000
@@ -70,7 +67,7 @@ class MainMenu:
         main_frame = tk.Frame(self.root)
         main_frame.pack(expand=True, padx=50, pady=50)
         tk.Label(main_frame, 
-                text="Bienvenidos a los Juegos", 
+                text=f"Bienvenido {self.username} a los Juegos", 
                 font=("Helvetica", 16, "bold"),
                 fg="#000000").pack(pady=(0, 30))
         memory_btn = tk.Button(

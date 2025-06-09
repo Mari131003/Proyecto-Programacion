@@ -58,8 +58,6 @@ class MemoryGameGUI:
         except Exception as e:
             print(f"No se pudo cargar sonido de victoria: {e}")
 
-
-
     def enviarRoot(self):
         """Enviar Root a game"""
         self.game.setRoot(self.root)
