@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from Jugador import Jugador
+from Jugador import *
 import threading
 import time
 import random
@@ -8,7 +8,7 @@ import random
 class PatternGame:
     def __init__(self):
         self.root = None
-        self.jugador = Jugador("Jugador")
+        self.jugador = JugadorPatrones("Jugador")
         self.botones = []
         self.Patron = []
         self.SecuenciaActual = 3

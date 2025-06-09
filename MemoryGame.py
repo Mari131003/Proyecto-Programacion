@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from Jugador import Jugador
+from Jugador import *
 import threading
 import time
 
@@ -8,8 +8,8 @@ class MemoryGame:
     def __init__(self):
         self.root = None
         self.board = self.inicializarTablero()
-        self.jugador1 = Jugador("Jugador 1")
-        self.jugador2 = Jugador("Jugador 2")
+        self.jugador1 = JugadorClasico("Jugador 1")
+        self.jugador2 = JugadorClasico("Jugador 2")
         self.Primera_carta = None
         self.Primer_boton = None
         self.Segunda_carta = None
@@ -54,8 +54,8 @@ class MemoryGame:
         #Reinicia variables principales
         self.board = self.inicializarTablero()
         self.detener_cronometro_completamente()
-        self.jugador1 = Jugador("Jugador 1")
-        self.jugador2 = Jugador("Jugador 2")
+        self.jugador1 = JugadorClasico("Jugador 1")
+        self.jugador2 = JugadorClasico("Jugador 2")
         self.Primera_carta = None
         self.Primer_boton = None
         self.Segunda_carta = None

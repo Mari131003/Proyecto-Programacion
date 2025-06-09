@@ -1,13 +1,15 @@
 class Jugador:
     def __init__(self, nombre):
         self.nombre = nombre
+
+class JugadorClasico(Jugador):
+    def __init__(self, nombre):
+        super().__init__(nombre)
         self.turno = False  # Indica si es su turno
         self.ParejasEncontradas = 0
         self.Fallos = 0
         self.intentos = 0
-        self.Secuencias = 0
 
-    #Juego Memory
     def getFallos(self):
         return self.Fallos
     
@@ -41,7 +43,10 @@ class Jugador:
     def getIntentos(self):
         return self.intentos
     
-    #Juego patrones
+class JugadorPatrones(Jugador):
+    def __init__(self,nombre):
+        super().__init__(nombre)
+        self.Secuencias = 0
 
     def AumentaSecuencia(self):
         self.Secuencias += 1
@@ -51,4 +56,3 @@ class Jugador:
     
     def setSecuencias(self,num):
         self.Secuencias = num
-    

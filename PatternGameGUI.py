@@ -218,7 +218,6 @@ class PatternGameGUI:
                 self.botones[i][j] = {
                     "boton": btn,
                     "color": color_asignado,
-                    "revelado": False
                 }
 
         #Enviar los botones para establecer el patron
