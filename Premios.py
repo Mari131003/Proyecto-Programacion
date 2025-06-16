@@ -63,3 +63,64 @@ class Premios:
         except Exception as e:
             print(f"Error obteniendo top 5: {e}")
             return []
+        
+    def guardar_puntaje(self, nombre: str, intentos: int):
+        """Guarda un nuevo puntaje en el archivo pickle solo si es válido."""
+        if not nombre or nombre.strip() == "" or intentos <= 0:
+            print("Nombre vacío o intentos inválidos. Registro no guardado.")
+            return
+
+        try:
+            if os.path.exists("puntajes_memory.pkl"):
+                with open("puntajes_memory.pkl", 'rb') as f:
+                    puntajes = pickle.load(f)
+            else:
+                puntajes = []
+
+            # Agregar nuevo jugador
+            puntajes.append({
+                'nombre': nombre,
+                'intentos': intentos,
+                'fecha': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+
+            # Guardar actualizado
+            with open("puntajes_memory.pkl", 'wb') as f:
+                pickle.dump(puntajes, f)
+
+        except Exception as e:
+            print(f"Error guardando puntaje: {e}")
+
+    def eliminar_jugador(self, nombre, intentos=None):
+        """
+        Elimina un jugador del archivo de puntajes.
+    
+        Args:
+            nombre (str): Nombre del jugador a eliminar.
+            intentos (int, optional): Si se da, elimina solo registros específicos.
+        """
+        try:
+            if not os.path.exists("puntajes_memory.pkl"):
+                print("No hay datos para eliminar")
+                return False
+
+            with open("puntajes_memory.pkl", 'rb') as f:
+                puntajes = pickle.load(f)
+
+            # Filtrar los puntajes que NO coincidan con el nombre (y opcionalmente intentos)
+            original_count = len(puntajes)
+            if intentos is not None:
+                puntajes = [j for j in puntajes if j['nombre'] != nombre or j['intentos'] != intentos]
+            else:
+                puntajes = [j for j in puntajes if j['nombre'] != nombre]
+
+            nuevos_registros = len(puntajes)
+
+            # Guardar cambios
+            with open("puntajes_memory.pkl", 'wb') as f:
+                pickle.dump(puntajes, f)
+
+            return original_count > nuevos_registros
+        except Exception as e:
+            print(f"Error eliminando jugador: {e}")
+            return False

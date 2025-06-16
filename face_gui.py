@@ -13,117 +13,41 @@ class Face_Recognition:
         self.USERS_DIR = "users_lbph"
         if not os.path.exists(self.USERS_DIR):
             os.makedirs(self.USERS_DIR)
-        
         self.root = root
         self.login_thread_active = False
         self.setup_gui()
 
     def setup_gui(self):
-        """Configurar la interfaz gráfica"""
-        # Colores del tema naranja 
+        """Configurar la interfaz gráfica con tonos naranjas"""
         primary_color = "#FFB347"    
         secondary_color = "#FFD89C"   
         accent_color = "#FF8C00"      
         text_color = "#000000"        
         bg_color = "#FFEBD7"          
-        
         self.root.title("Reconocimiento Facial")
         self.root.geometry("500x550")
         self.root.resizable(False, False)
         self.root.configure(bg=bg_color)
-        
-        # Centrar en la pantalla
-        screen_width = self.root.winfo_screenwidth()
+        screen_width = self.root.winfo_screenwidth() # Centrar en la pantalla
         screen_height = self.root.winfo_screenheight()
         x = (screen_width - 500) // 2
         y = (screen_height - 550) // 2
         self.root.geometry(f'500x550+{x}+{y}')
-        
-        # Título principal - Memory Game
-        title_label = tk.Label(
-            self.root,
-            text="Memory Game",
-            font=("Arial", 28, "bold"),
-            fg="#000000",
-            bg=bg_color
+        title_label = tk.Label(self.root,text="Memory Game",font=("Arial", 28, "bold"),fg="#000000",bg=bg_color
         )
         title_label.pack(pady=(30, 10))
-        
-        # Subtítulo
-        subtitle_label = tk.Label(
-            self.root,
-            text="Login con reconocimiento facial",
-            font=("Arial", 14),
-            fg=accent_color,
-            bg=bg_color
+        subtitle_label = tk.Label(self.root,text="Login con reconocimiento facial",font=("Arial", 14),fg=accent_color,bg=bg_color
         )
         subtitle_label.pack(pady=(0, 40))
-        
-        # Frame para los botones principales
         buttons_frame = tk.Frame(self.root, bg=secondary_color, padx=30, pady=30)
         buttons_frame.pack(padx=40, pady=(0, 30))
-        
-        # Botón Registrar rostro
-        tk.Button(
-            buttons_frame,
-            text="Registrar nuevo rostro",
-            command=self.register_face_gui,
-            font=("Arial", 12, "bold"),
-            bg=primary_color,
-            fg="white",
-            activebackground=accent_color,
-            activeforeground="white",
-            relief=tk.FLAT,
-            width=25,
-            height=2,
-            cursor="hand2"
+        tk.Button(buttons_frame,text="Registrar nuevo rostro",command=self.register_face_gui,font=("Arial", 12, "bold"),bg=primary_color,fg="white",activebackground=accent_color,activeforeground="white",relief=tk.FLAT,width=25,height=2,cursor="hand2"
         ).pack(pady=(0, 20))
-        
-        # Botón Iniciar sesión
-        tk.Button(
-            buttons_frame,
-            text="Iniciar sesión con rostro",
-            command=self.login_with_face_gui,
-            font=("Arial", 12, "bold"),
-            bg=primary_color,
-            fg="white",
-            activebackground=accent_color,
-            activeforeground="white",
-            relief=tk.FLAT,
-            width=25,
-            height=2,
-            cursor="hand2"
+        tk.Button(buttons_frame,text="Iniciar sesión con rostro",command=self.login_with_face_gui,font=("Arial", 12, "bold"),bg=primary_color,fg="white",activebackground=accent_color,activeforeground="white",relief=tk.FLAT,width=25,height=2,cursor="hand2"
         ).pack()
-        
-        # Instrucciones compactas
-        info_label = tk.Label(
-            self.root,
-            text="💡 Asegúrate de tener buena iluminación y mira directamente a la cámara",
-            font=("Arial", 10),
-            fg=text_color,
-            bg=bg_color,
-            wraplength=400,
-            justify=tk.CENTER
+        info_label = tk.Label(self.root,text="💡 Asegúrate de tener buena iluminación y mira directamente a la cámara",font=("Arial", 10),fg=text_color,bg=bg_color,wraplength=400,justify=tk.CENTER
         )
         info_label.pack(pady=(20, 30))
-        
-        # Botón Salir
-        tk.Button(
-            self.root,
-            text="❌ Salir",
-            command=self.root.destroy,
-            font=("Arial", 11),
-            bg= "#000000",
-            fg= "white",
-            activebackground="#333333",
-            activeforeground=text_color,
-            relief=tk.RAISED,
-            highlightbackground="gray",
-            highlightthickness=1,
-            width=15,
-            cursor="hand2"
-        ).pack(pady=(0, 20))
-
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def on_closing(self):
@@ -133,19 +57,14 @@ class Face_Recognition:
         self.root.destroy()
 
     def SolicitarNombre(self):
-        """Ventana bonita para solicitar nombre de usuario"""
-        # Colores del tema naranja
+        """Ventana para solicitar nombre de usuario en tonos naranjas"""
         primary_color = "#FFB347"    
         secondary_color = "#FFD89C"   
         accent_color = "#FF8C00"      
         text_color = "#000000"        
         bg_color = "#FFEBD7"          
-        
-        # Variables para el resultado
-        self.nombre_resultado = None
+        self.nombre_resultado = None # Variables para el resultado
         self.nombre_confirmado = False
-        
-        # Crear ventana Toplevel
         nombre_window = tk.Toplevel(self.root)
         nombre_window.title("Registro de Usuario")
         nombre_window.geometry("400x250")
@@ -153,60 +72,29 @@ class Face_Recognition:
         nombre_window.configure(bg=bg_color)
         nombre_window.transient(self.root)  # Mantener siempre encima de la ventana principal
         nombre_window.grab_set()  # Bloquear interacción con ventana principal
-        
-        # Centrar la ventana
         x = (nombre_window.winfo_screenwidth() - 400) // 2
         y = (nombre_window.winfo_screenheight() - 250) // 2
         nombre_window.geometry(f'400x250+{x}+{y}')
-        
-        # Título
-        title_label = tk.Label(
-            nombre_window,
-            text="📝 Registro de Usuario",
-            font=("Arial", 15, "bold"),
-            fg=text_color,
-            bg=bg_color
+        title_label = tk.Label(nombre_window,text="📝 Registro de Usuario",font=("Arial", 15, "bold"),fg=text_color,bg=bg_color
         )
         title_label.pack(pady=(30, 15))
-        
-        # Frame principal
         main_frame = tk.Frame(nombre_window, bg=secondary_color, padx=30, pady=25)
         main_frame.pack(padx=30, pady=(0, 20))
-        
-        # Instrucción
-        instruccion_label = tk.Label(
-            main_frame,
-            text="Ingresa tu nombre de usuario:",
-            font=("Arial", 12),
-            fg=text_color,
-            bg=secondary_color
+        instruccion_label = tk.Label(main_frame,text="Ingresa tu nombre de usuario:",font=("Arial", 12),fg=text_color,bg=secondary_color
         )
         instruccion_label.pack(pady=(0, 15))
-        
-        # Campo de entrada
-        nombre_entry = tk.Entry(
-            main_frame,
-            font=("Arial", 14),
-            bg="white",
-            fg=text_color,
-            relief=tk.FLAT,
-            width=20,
-            justify=tk.CENTER
+        nombre_entry = tk.Entry(main_frame,font=("Arial", 14),bg="white",fg=text_color,relief=tk.FLAT,width=20,justify=tk.CENTER
         )
         nombre_entry.pack(pady=(0, 20))
         nombre_entry.focus_set()  # Dar foco inmediatamente
-        
-        # Frame para botones
         botones_frame = tk.Frame(main_frame, bg=secondary_color)
         botones_frame.pack()
         
         def confirmar_nombre():
             nombre = nombre_entry.get().strip()
             if not nombre:
-                # Mostrar error simple
                 messagebox.showerror("Error", "Por favor ingresa un nombre")
                 return
-                
             self.nombre_resultado = nombre.lower()
             self.nombre_confirmado = True
             nombre_window.destroy()
@@ -215,50 +103,15 @@ class Face_Recognition:
             self.nombre_resultado = None
             self.nombre_confirmado = False
             nombre_window.destroy()
-        
-        # Botón Confirmar
-        tk.Button(
-            botones_frame,
-            text=" Confirmar",
-            command=confirmar_nombre,
-            font=("Arial", 10, "bold"),
-            bg=primary_color,
-            fg="white",
-            activebackground=accent_color,
-            activeforeground="white",
-            relief=tk.FLAT,
-            width=12, 
-            cursor="hand2"
+        tk.Button(botones_frame,text=" Confirmar",command=confirmar_nombre,font=("Arial", 10, "bold"),bg=primary_color,fg="white",activebackground=accent_color,activeforeground="white",relief=tk.FLAT,width=12, cursor="hand2"
         ).pack(side=tk.LEFT, padx=(0, 10))
-        
-        # Botón Cancelar
-        tk.Button(
-            botones_frame,
-            text="Cancelar",
-            command=cancelar,
-            font=("Arial", 10),
-            bg=bg_color,
-            fg=text_color,
-            activebackground="#F0F0F0",
-            activeforeground=text_color,
-            relief=tk.RAISED,
-            width=12,
-            cursor="hand2"
+        tk.Button(botones_frame,text="Cancelar",command=cancelar,font=("Arial", 10),bg=bg_color,fg=text_color,activebackground="#F0F0F0",activeforeground=text_color,relief=tk.RAISED,width=12,cursor="hand2"
         ).pack(side=tk.LEFT)
-        
-        # Permitir confirmar con Enter
         def enter_pressed(event):
             confirmar_nombre()
-        
         nombre_entry.bind("<Return>", enter_pressed)
-        
-        # Manejar cierre de ventana
         nombre_window.protocol("WM_DELETE_WINDOW", cancelar)
-        
-        # Esperar hasta que se cierre la ventana
         nombre_window.wait_window()
-        
-        # Retornar el resultado
         if self.nombre_confirmado:
             return self.nombre_resultado
         else:
@@ -269,51 +122,37 @@ class Face_Recognition:
         name = self.SolicitarNombre()
         if not name:
             messagebox.showerror("Error", "Nombre inválido.")
-            return
-
+            return 
         name = name.strip().lower()
-        
         if not os.path.exists(self.USERS_DIR):
             os.makedirs(self.USERS_DIR)
-
         cap = cv2.VideoCapture(0)
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         count = 0
         faces_data = []
-
         messagebox.showinfo("Instrucción", "Mira a la cámara directamente.")
-
         while True:
             ret, frame = cap.read()
             if not ret:
                 messagebox.showerror("Error", "No se pudo acceder a la cámara.")
                 break
-
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
             for (x, y, w, h) in faces:
                 face = gray[y:y+h, x:x+w]
                 face_resized = cv2.resize(face, (100, 100))
                 faces_data.append(face_resized)
                 count += 1
-
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 cv2.putText(frame, f"Captura {count}/10", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-
-            #Centrar en la pantalla la ventana de camara
-            if count == 1:  
+            if count == 1:    #Centrar en la pantalla la ventana de camara
                 cv2.namedWindow("Registrando rostro", cv2.WINDOW_NORMAL)
                 cv2.moveWindow("Registrando rostro", 400, 200)
-
             cv2.imshow("Registrando rostro", frame)
-
             if count >= 10 or cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
         cap.release()
         cv2.destroyAllWindows()
-
         if faces_data:
             mean_face = np.mean(faces_data, axis=0)  # Promediar las 10 capturas
             filepath = os.path.join(self.USERS_DIR, f"{name}.npy")
@@ -329,7 +168,6 @@ class Face_Recognition:
         labels = []
         label_map = {}
         label_count = 0
-
         for file in os.listdir(self.USERS_DIR):
             if file.endswith(".jpg"):
                 path = os.path.join(self.USERS_DIR, file)
@@ -340,10 +178,8 @@ class Face_Recognition:
                     label_count += 1
                 faces.append(img)
                 labels.append(label_map[name])
-
         if not faces:
             return None, {}
-
         recognizer.train(faces, np.array(labels))
         return recognizer, {v: k for k, v in label_map.items()}
 
@@ -351,23 +187,19 @@ class Face_Recognition:
         """Cargar rostros conocidos"""
         encodings = []
         names = []
-
         for file in os.listdir(self.USERS_DIR):
             if file.endswith(".npy"):
                 path = os.path.join(self.USERS_DIR, file)
                 encoding = np.load(path).flatten()
                 encodings.append(encoding)
                 names.append(os.path.splitext(file)[0])
-
         return encodings, names
     
-
     def login_with_face_gui(self):
         """Login con rostro automático usando OpenCV"""
         if self.login_thread_active:
             messagebox.showwarning("Espera", "El reconocimiento facial ya está en proceso.")
             return
-        
         def login_thread():
             self.login_thread_active = True 
             cap = None
@@ -376,31 +208,24 @@ class Face_Recognition:
                 if not known_encodings:
                     self.root.after(0, lambda: messagebox.showerror("Error", "No hay rostros registrados."))
                     return
-
                 cap = cv2.VideoCapture(0)
                 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-
                 start_time = time.time()
                 recognized = False
-
                 while True:
                     if not self.login_thread_active:
                         break
-
                     ret, frame = cap.read()
                     if not ret:
                         self.root.after(0, lambda: messagebox.showerror("Error", "No se pudo acceder a la cámara."))
                         break
-
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
                     for (x, y, w, h) in faces:
                         face = cv2.resize(gray[y:y+h, x:x+w], (100, 100)).flatten()
                         distances = [np.linalg.norm(face - known_enc) for known_enc in known_encodings]
                         min_distance = min(distances)
                         best_match_index = np.argmin(distances)
-
                         if min_distance < 3000:
                             name = known_names[best_match_index]
                             label = f"Reconocido: {name}"
@@ -410,12 +235,8 @@ class Face_Recognition:
                         else:
                             label = "Desconocido"
                             color = (0, 0, 255)
-
-                        # Dibujar recuadro y etiqueta
-                        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2) # Dibujar recuadro y etiqueta
                         cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
-
-                        #Si fue reconocido, puede ingresar al juego
                         if recognized:
                             cv2.imshow("Login con rostro", frame)
                             cv2.waitKey(1000)
@@ -424,25 +245,19 @@ class Face_Recognition:
                             cv2.destroyAllWindows()
                             self.root.after(0, lambda name=recognized_name: self.open_main_menu(name))
                             return
-
                     if 'window_positioned' not in locals():
                         cv2.namedWindow("Login con rostro", cv2.WINDOW_NORMAL)
                         cv2.moveWindow("Login con rostro", 400, 200)
                         window_positioned = True
-
                     cv2.imshow("Login con rostro", frame)
-
                     if time.time() - start_time > 15:
                         break
-
                     if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
                 if cap:
                     cap.release()
                 cv2.destroyAllWindows()
                 self.root.after(0, lambda: messagebox.showinfo("Login fallido", "No se reconoció ningún rostro o se canceló el login."))
-                
-
             except Exception as e:
                 if cap:
                     cap.release()
@@ -451,7 +266,6 @@ class Face_Recognition:
                 self.root.after(0, lambda: messagebox.showerror("Error inesperado", error_msg))
             finally:
                 self.login_thread_active = False
-
         thread = threading.Thread(target=login_thread, daemon=True)
         thread.start()
 
@@ -461,15 +275,9 @@ class Face_Recognition:
 
     def open_main_menu(self, username):
         """Cierra el login y abre el MainMenu"""
-        #Cerrar el hilo
-        self.login_thread_active = False
+        self.login_thread_active = False #Cerrar el hilo
         time.sleep(0.1)
-        
-        #Llamar a main menu
-        self.root.destroy()
+        self.root.destroy() #Llamar a main menu
         root = tk.Tk()
         app = MainMenu(root, username)
         root.mainloop()
-
-
-        

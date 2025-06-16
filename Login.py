@@ -5,7 +5,6 @@ import time
 from MainMenu import MainMenu
 from face_gui import Face_Recognition
 
-
 class LoginMemory:
     def __init__(self, root):
         self.root = root
@@ -15,8 +14,7 @@ class LoginMemory:
         self.root.resizable(False, False)
         self.root.configure(bg="#FFEBD7")
         self.center_window()
-        # Colores
-        self.primary_color = "#FFB347"     
+        self.primary_color = "#FFB347"     # Colores 
         self.secondary_color = "#FFD89C"   
         self.accent_color = "#FF8C00"     
         self.text_color = "#000000"       
@@ -56,181 +54,54 @@ class LoginMemory:
     def create_login_widgets(self):
         """Crea los widgets para el login"""
         self.login_frame = tk.Frame(self.root, bg="#FFEBD7")
-        logo_label = tk.Label(
-            self.login_frame, 
-            text="Memory Game", 
-            font=("Arial", 28, "bold"), 
-            fg="#000000",
-            bg="#FFEBD7"
+        logo_label = tk.Label(self.login_frame, text="Memory Game", font=("Arial", 28, "bold"), fg="#000000",bg="#FFEBD7"
         )
         logo_label.pack(pady=(10, 30))
         form_frame = tk.Frame(self.login_frame, bg=self.secondary_color, padx=20, pady=20)
         form_frame.pack(fill=tk.X, pady=(0, 20))
-        tk.Label(
-            form_frame, 
-            text="Usuario", 
-            font=("Arial", 10), 
-            bg=self.secondary_color,
-            fg=self.text_color
+        tk.Label(form_frame, text="Usuario", font=("Arial", 10), bg=self.secondary_color,fg=self.text_color
         ).pack(anchor="w", pady=(0, 5))
-        self.username_entry = tk.Entry(
-            form_frame, 
-            font=("Arial", 12), 
-            bg="white",
-            relief=tk.FLAT
+        self.username_entry = tk.Entry(form_frame, font=("Arial", 12), bg="white",relief=tk.FLAT
         )
         self.username_entry.pack(fill=tk.X, pady=(0, 15))
-        tk.Label(                          # Contraseña
-            form_frame, 
-            text="Contraseña", 
-            font=("Arial", 10), 
-            bg=self.secondary_color,
-            fg=self.text_color
+        tk.Label(form_frame, text="Contraseña", font=("Arial", 10),  bg=self.secondary_color,fg=self.text_color
         ).pack(anchor="w", pady=(0, 5))
-        self.password_entry = tk.Entry(
-            form_frame, 
-            font=("Arial", 12), 
-            show="*", 
-            bg="white",
-            relief=tk.FLAT
+        self.password_entry = tk.Entry( form_frame,  font=("Arial", 12),  show="*",  bg="white",relief=tk.FLAT
         )
         self.password_entry.pack(fill=tk.X, pady=(0, 20))
-        tk.Button(                          # Botón de login
-            form_frame, 
-            text="Iniciar sesión", 
-            font=("Arial", 12, "bold"), 
-            bg=self.primary_color,
-            fg="white",
-            activebackground=self.accent_color,
-            activeforeground="white",
-            relief=tk.FLAT,
-            command=self.login
+        tk.Button(form_frame, text="Iniciar sesión", font=("Arial", 12, "bold"),  bg=self.primary_color,fg="white", activebackground=self.accent_color, activeforeground="white",  relief=tk.FLAT, command=self.login
         ).pack(fill=tk.X, pady=(0, 15))
-
-        # Reconocimiento facial
-        tk.Button(                           
-            form_frame, 
-            text="Reconocimiento facial", 
-            font=("Arial", 10), 
-            bg=self.secondary_color,
-            fg=self.text_color,
-            activebackground=self.secondary_color,
-            activeforeground=self.text_color,
-            relief=tk.RAISED,
-            highlightbackground="black",
-            highlightthickness=2,
-            command=self.face_recognition
+        tk.Button(                           form_frame,  text="Reconocimiento facial", font=("Arial", 10), bg=self.secondary_color,fg=self.text_color,activebackground=self.secondary_color, activeforeground=self.text_color,relief=tk.RAISED, highlightbackground="black",  highlightthickness=2,command=self.face_recognition
         ).pack(fill=tk.X)
-
         tk.Frame(self.login_frame, height=1, bg="lightgray").pack(fill=tk.X, pady=10) # Separador
-
-        # Botón de registro
-        tk.Button(                            
-            self.login_frame, 
-            text="Crear cuenta nueva", 
-            font=("Arial", 12), 
-            bg="#000000",
-            fg="white",
-            activebackground="#000000",
-            activeforeground="white",
-            relief=tk.FLAT,
-            command=self.show_register_window
+        tk.Button( self.login_frame, text="Crear cuenta nueva", font=("Arial", 12),  bg="#000000", fg="white", activebackground="#000000", activeforeground="white", relief=tk.FLAT,command=self.show_register_window
         ).pack(fill=tk.X, pady=(5, 15))
-
-        # Botón de salir
-        tk.Button(                            
-            self.login_frame, 
-            text="Salir", 
-            font=("Arial", 10), 
-            bg="#FFEBD7",
-            fg=self.text_color,
-            activebackground="#FFEBD7",
-            activeforeground=self.text_color,
-            relief=tk.RAISED,
-            highlightbackground="black",
-            highlightthickness=2,
-            command=self.root.quit
-        ).pack()
 
     def create_register_widgets(self):
         """Crea los widgets para el registro"""
         self.register_frame = tk.Frame(self.root, bg="#FFEBD7")
-        tk.Label(
-            self.register_frame, 
-            text="Registro", 
-            font=("Arial", 24, "bold"), 
-            fg=self.accent_color,
-            bg="#FFEBD7"
+        tk.Label( self.register_frame,   text="Registro",   font=("Arial", 24, "bold"),   fg=self.accent_color,    bg="#FFEBD7"
         ).pack(pady=(10, 30))
         form_frame = tk.Frame(self.register_frame, bg=self.secondary_color, padx=20, pady=20)
         form_frame.pack(fill=tk.X, pady=(0, 20))
-        tk.Label(
-            form_frame, 
-            text="Nuevo usuario", 
-            font=("Arial", 10), 
-            bg=self.secondary_color,
-            fg=self.text_color
+        tk.Label( form_frame,   text="Nuevo usuario",  font=("Arial", 10),   bg=self.secondary_color,   fg=self.text_color
         ).pack(anchor="w", pady=(0, 5))
-        self.new_user_entry = tk.Entry(
-            form_frame, 
-            font=("Arial", 12), 
-            bg="white",
-            relief=tk.FLAT
+        self.new_user_entry = tk.Entry( form_frame,   font=("Arial", 12),   bg="white",  relief=tk.FLAT
         )
         self.new_user_entry.pack(fill=tk.X, pady=(0, 15))
-        tk.Label(
-            form_frame, 
-            text="Nueva contraseña", 
-            font=("Arial", 10), 
-            bg=self.secondary_color,
-            fg=self.text_color
+        tk.Label( form_frame, text="Nueva contraseña",  font=("Arial", 10),  bg=self.secondary_color, fg=self.text_color
         ).pack(anchor="w", pady=(0, 5))
-        self.new_pass_entry = tk.Entry(
-            form_frame, 
-            font=("Arial", 12), 
-            show="*", 
-            bg="white",
-            relief=tk.FLAT
+        self.new_pass_entry = tk.Entry( form_frame,   font=("Arial", 12),    show="*",   bg="white",  relief=tk.FLAT
         )
         self.new_pass_entry.pack(fill=tk.X, pady=(0, 20))
-        tk.Label(
-            form_frame, 
-            text="Confirmar contraseña", 
-            font=("Arial", 10), 
-            bg=self.secondary_color,
-            fg=self.text_color
+        tk.Label( form_frame,  text="Confirmar contraseña",   font=("Arial", 10),  bg=self.secondary_color, fg=self.text_color
         ).pack(anchor="w", pady=(0, 5))
-        self.confirm_pass_entry = tk.Entry(
-            form_frame, 
-            font=("Arial", 12), 
-            show="*", 
-            bg="white",
-            relief=tk.FLAT
+        self.confirm_pass_entry = tk.Entry(form_frame,  font=("Arial", 12),   show="*",  bg="white", relief=tk.FLAT
         )
         self.confirm_pass_entry.pack(fill=tk.X, pady=(0, 20))
-        tk.Button(
-            form_frame, 
-            text="Registrarse", 
-            font=("Arial", 12, "bold"), 
-            bg=self.primary_color,
-            fg="white",
-            activebackground=self.accent_color,
-            activeforeground="white",
-            relief=tk.FLAT,
-            command=self.register_user
+        tk.Button(form_frame,  text="Registrarse",  font=("Arial", 12, "bold"),  bg=self.primary_color, fg="white",activebackground=self.accent_color,  activeforeground="white",  relief=tk.FLAT, command=self.register_user
         ).pack(fill=tk.X, pady=(0, 15))
-        tk.Button(
-            self.register_frame, 
-            text="Volver al login", 
-            font=("Arial", 10), 
-            bg="#FFEBD7",
-            fg=self.text_color,
-            activebackground="#FFEBD7",
-            activeforeground=self.text_color,
-            relief=tk.RAISED,
-            highlightbackground="black",
-            highlightthickness=2,
-            command=self.show_login_window
+        tk.Button( self.register_frame,  text="Volver al login",   font=("Arial", 10),   bg="#FFEBD7", fg=self.text_color, activebackground="#FFEBD7",   activeforeground=self.text_color,  relief=tk.RAISED,  highlightbackground="black", highlightthickness=2,  command=self.show_login_window
         ).pack(pady=(20, 0))
     
     def show_login_window(self):

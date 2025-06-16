@@ -1,7 +1,6 @@
 class Jugador:
     def __init__(self, nombre):
         self.nombre = nombre
-
 class JugadorClasico(Jugador):
     def __init__(self, nombre):
         super().__init__(nombre)
@@ -22,12 +21,10 @@ class JugadorClasico(Jugador):
     def setParejasEncontradas(self):
         self.ParejasEncontradas += 1 
 
-    #Asigna si es su turno o no
-    def asignar_turno(self, turno):
+    def asignar_turno(self, turno): #Asigna si es su turno o no
         self.turno = turno
 
-    #Set y get de turno
-    def getTurno(self):
+    def getTurno(self): #Set y get de turno
         return self.turno
 
     def setTurno(self, turno):
@@ -36,8 +33,7 @@ class JugadorClasico(Jugador):
     def getNombre(self):
         return self.nombre
     
-    #Incrementa el número de intentos del jugador
-    def incrementar_intentos(self):
+    def incrementar_intentos(self): #Incrementa el número de intentos del jugador
         self.intentos += 1
 
     def getIntentos(self):

@@ -9,12 +9,13 @@ from MemoryGame import MemoryGame
 
 
 class MemoryGameGUI:
-    def __init__(self, root,music_callback=None,return_callback=None):
+    def __init__(self, root,music_callback=None,return_callback=None,username=None):
         self.root = root
         self.music_callback = music_callback
         self.return_callback = return_callback
         self.root.protocol("WM_DELETE_WINDOW", self.return_to_main)
         self.root.title("Juego de Memoria")
+        self.username = username if username else "Oponente"
         self.seleccion_activa = True 
         self.music_callback = music_callback
         if self.music_callback:
@@ -89,7 +90,7 @@ class MemoryGameGUI:
         frame_jugador1.grid(row=0, column=0, columnspan=6, sticky="nsew", padx=(0,10))
         frame_jugador1.grid_propagate(False)
         frame_jugador1.config(width=self.BOTON_ANCHO*6 + 2*5)  
-        tk.Label(frame_jugador1, text="Jugador 1", bg='#B22F70', fg='white',
+        tk.Label(frame_jugador1, text=self.username, bg='#B22F70', fg='white',
                 font=self.custom_font).pack(pady=(0,5))
         
         #Marcador del juego
@@ -107,7 +108,7 @@ class MemoryGameGUI:
         frame_jugador2.grid(row=0, column=7, columnspan=6, sticky="nsew", padx=(10,0))
         frame_jugador2.grid_propagate(False)
         frame_jugador2.config(width=self.BOTON_ANCHO*6 + 2*5)  
-        tk.Label(frame_jugador2, text="Jugador 2", bg='#B22F70', fg='white',
+        tk.Label(frame_jugador2, text="Oponente", bg='#B22F70', fg='white',
                 font=self.custom_font).pack(pady=(0,5))
         
         #Marcador del juego
@@ -121,8 +122,13 @@ class MemoryGameGUI:
         self.marcador_tiempo2.pack()
 
         #Marcador de turno
-        self.marcador_turno = tk.Label(marcadores_frame, text="Turno: Jugador 1", bg="#F5C5DB", 
-                                     font=("Helvetica", 12, "bold"), fg="#B22F70")
+        self.marcador_turno = tk.Label(
+            marcadores_frame,
+            text=f"Turno: {self.username}",
+            bg="#F5C5DB",
+            font=("Helvetica", 12, "bold"),
+            fg="#B22F70"
+        )
         self.marcador_turno.grid(row=0, column=6, sticky="ns")
 
         marcadores_frame.config(height=100)
@@ -150,7 +156,10 @@ class MemoryGameGUI:
         self.marcador_parejas2.config(text=f"Parejas: {self.game.jugador2.getParejasEncontradas()}")
         self.marcador_fallos1.config(text=f"Fallos: {self.game.jugador1.getFallos()}")
         self.marcador_fallos2.config(text=f"Fallos: {self.game.jugador2.getFallos()}")
-        jugador_actual = "Jugador 1" if self.game.turno_actual == 0 else "Jugador 2"
+        if self.game.turno_actual == 0:
+            jugador_actual = self.username if hasattr(self, 'username') and self.username else "Jugador 1"
+        else:
+            jugador_actual = "Oponente"
         self.marcador_turno.config(text=f"Turno: {jugador_actual}")
 
     def crear_imagen_oculta(self):
@@ -296,32 +305,26 @@ class MemoryGameGUI:
         ventana_ganador.geometry("300x150")
         ventana_ganador.resizable(False, False)
         ventana_ganador.config(bg="#ffcff1")
-        
         # Centrar la ventana
         ventana_ganador.transient(self.root) 
         ventana_ganador.grab_set()
-        
         # Título
         titulo = tk.Label(ventana_ganador, text="🎉 ¡Felicidades! 🎉", 
                         font=("Arial", 14, "bold"))
         titulo.pack(pady=10)
-        
         # Mensaje del ganador
         mensaje = tk.Label(ventana_ganador, text=f"Ganador: {ganador}", 
                         font=("Arial", 12, "bold"), fg="#ff00c5")
         mensaje.pack(pady=5)
-        
         # Mostrar intentos
         detalles = tk.Label(ventana_ganador, 
                         text=f"Jugador 1: {intentos1} intentos\nJugador 2: {intentos2} intentos")
         detalles.pack(pady=5)
-        
         # Botón para cerrar
         boton_ok = tk.Button(ventana_ganador, text="OK", 
                             command=ventana_ganador.destroy,
                             width=10)
         boton_ok.pack(pady=10)
-        
         # Centrar la ventana en la pantalla
         ventana_ganador.update_idletasks()
         x = (ventana_ganador.winfo_screenwidth() // 2) - (ventana_ganador.winfo_width() // 2)
@@ -397,19 +400,21 @@ class MemoryGameGUI:
                 self.img_victoria_tk = ImageTk.PhotoImage(img_redimensionada)
                 label_imagen = tk.Label(marco_imagen, image=self.img_victoria_tk, bg='white')
                 label_imagen.pack(expand=True)
-                label_ganador = tk.Label(marco_imagen, 
-                                        text=f"¡{ganador} ha ganado!",
-                                        font=("Helvetica", 16, "bold"), 
-                                        bg='white', fg='#B22F70')
-                label_ganador.place(relx=0.5, rely=0.9, anchor='center')
+
         except Exception as e:
             print(f"Error al cargar imagen: {e}")
-            tk.Label(marco_imagen, 
-                    text=f"¡{ganador} ha ganado!\n\nVICTORIA",
-                    font=("Helvetica", 24, "bold"), 
-                    bg='white', fg='#B22F70').pack(expand=True)
+        nombre_mostrar = self.username if ganador == "Jugador 1" else "Oponente"
+        label_ganador = tk.Label(
+            marco_imagen, 
+            text=f"¡{nombre_mostrar} ha ganado!",
+            font=("Helvetica", 16, "bold"), 
+            bg='white', fg='#B22F70'
+        )
+        label_ganador.place(relx=0.5, rely=0.9, anchor='center')
         frame_botones = tk.Frame(ventana_victoria, bg='#F5C5DB')
         frame_botones.pack(pady=(10, 20), fill='x')
+        if ganador == "Jugador 1":
+            self.guardar_resultado(nombre_mostrar, self.game.jugador1.getIntentos())
         tk.Button(
             frame_botones,
             text="Ver Premios",
@@ -429,15 +434,19 @@ class MemoryGameGUI:
             width=15
         ).pack(side='right', padx=20, expand=True)
         if ganador == "Jugador 1":
+            nombre_mostrar = self.username
             intentos = self.game.jugador1.getIntentos()
         else:
+            nombre_mostrar = "Oponente"
             intentos = self.game.jugador2.getIntentos()
     
-        self.guardar_resultado(ganador, intentos)
+        self.guardar_resultado(nombre_mostrar, intentos)
 
     def guardar_resultado(self, nombre, intentos):
         """Guarda los resultados en archivo PKL"""
         try:
+            if intentos <= 0:
+                return  # No guardar partidas no jugadas
             # Cargar datos existentes o crear nueva lista
             if os.path.exists(self.puntajes_file):
                 with open(self.puntajes_file, 'rb') as f:
@@ -469,6 +478,6 @@ class MemoryGameGUI:
         self.root.destroy()  # Cierra la ventana actual del juego
         root = tk.Tk()
         from MainMenu import MainMenu
-        app = MainMenu(root)
+        app = MainMenu(root,self.username)
         app.open_premios_window()  # Abre directamente la ventana de premios
         root.mainloop()
