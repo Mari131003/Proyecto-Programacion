@@ -67,26 +67,19 @@ class PatternGame:
         self.deshabilitar_botones = funcion6
         self.habilitar_botones = funcion7
 
-
-    # get tiempo restante (cronometros)
-
     def getTiempoRestante(self):
         return self.tiempo_restante
     
     def getTiempoRestanteCasillas(self):
         return self.tiempo_restante_casillas
         
-
     #TIEMPO
-
     #Cronometro general
 
     def iniciar_cronometro_general(self):
         """Inicia el cronometro del jugador actual"""
-        # Detener cronómetro anterior completamente
+        # Detener cronómetro anterior completamente 
         self.detener_cronometro_completamente_general()
-        
-        # Reiniciar el tiempo
         self.ejecutando = True
 
         #Crear Hilo
@@ -142,11 +135,9 @@ class PatternGame:
     def iniciar_cronometro_casillas(self):
         """Inicia el cronómetro de 2 segundos entre casillas"""
         self.detener_cronometro_casillas()
-        
         self.ejecutando_casillas = True
         self.tiempo_restante_casillas = 2.1
         self.esperando_casilla = True
-
         self.hilo_cronometro_casillas = threading.Thread(target=self.ejecutar_cronometro_casillas)
         self.hilo_cronometro_casillas.daemon = True
         self.hilo_cronometro_casillas.start()
@@ -198,7 +189,6 @@ class PatternGame:
         self.mostrar_ventana_game_over(SecuenciasCompletadas)
 
     #Control general de cronometros
-
     def detener_todos_cronometros(self):
         """Detiene ambos cronómetros completamente"""
         self.detener_cronometro_completamente_general()
@@ -220,12 +210,9 @@ class PatternGame:
         #Volvemos a ordenarlos aleatoriamente (asegura aleatoriedad)
         random.shuffle(self.Patron)
         
-
     def MostrarPatron(self):
         """Muestra el patron al inicio de cada secuencia"""
-
         self.deshabilitar_botones()
-
         def mostrar_boton(indice):
             if indice < self.SecuenciaActual:
                 # Obtener el botón actual del patrón
@@ -246,11 +233,9 @@ class PatternGame:
             boton_actual['boton'].config(bg='#5D00AF') 
             
             # Mostrar siguiente boton luego de una pausa
-            self.root.after(700, lambda: mostrar_boton(indice + 1))
+            self.root.after(700, lambda: mostrar_boton(indice + 1)) 
             
-        
         mostrar_boton(0)
-
 
     def VerificaSecuencia(self,boton):
         """Verifica si el boton presionado es parte de la secuencia en el orden indicado"""

@@ -22,7 +22,6 @@ class MainMenu:
         self.subtitle_font = ("Helvetica", 14, "bold")
         self.custom_font = ("Helvetica", 12, "bold")
         self.intro_font = ("Helvetica", 11)
-
         pygame.mixer.init()
         self.current_music = None
         self.play_musica("musica/pantallaprincipal.mp3")
@@ -132,15 +131,28 @@ class MainMenu:
 
     def start_princess_animation(self):
         """Inicia la animación de la princesa si no está ya activa."""
-        if not hasattr(self, '_animation_running') or not self._animation_running:
-            self._animation_running = True  # Bandera para evitar duplicados
-            self.princesa_recursiva(0)  # Inicia la animación desde el frame 0
+        # Detener cualquier animación anterior
+        self.stop_princess_animation()
+        # Iniciar nueva animación
+        self._animation_running = True
+        self.animation_active = True
+        self.princesa_recursiva(0)
+
+    def stop_princess_animation(self):
+        """Detiene completamente la animación de la princesa."""
+        self._animation_running = False
+        self.animation_active = False
+    
+        if self.animation_job:
+            self.root.after_cancel(self.animation_job)
+            self.animation_job = None
     
     def princesa_recursiva(self, contador):
         """Animación recursiva de la princesa."""
         # Salida rápida si no está activa
-        if not self.animation_active:
+        if not self.animation_active or not self._animation_running:
             return
+        
         if contador > 11:
             contador = 0
         try:
@@ -166,7 +178,7 @@ class MainMenu:
             if self.animation_active:
                 self.animation_job = self.root.after(150, lambda: self.princesa_recursiva(contador))
         except:
-            pass  # Ignorar cualquier error
+            pass 
     
     def open_memory_game(self):
         """Oculta el menú y abre el modo clásico de memory game."""
@@ -186,10 +198,7 @@ class MainMenu:
 
     def open_premios_window(self):
         """Abre la ventana de premios manteniendo la música del menú principal"""
-        self.root.withdraw() 
-        self.animation_active = False  # Pausa la animación actual
-        if self.animation_job:
-            self.root.after_cancel(self.animation_job) 
+        self.root.withdraw()  
         premios_window = tk.Toplevel()
         premios_window.title("Ventana Premios")
         premios_window.configure(background='#D6EADF')
@@ -202,7 +211,7 @@ class MainMenu:
         premios_window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
         premios_window.resizable(False, False)
         premios_window.protocol("WM_DELETE_WINDOW", lambda: self.return_from_premios_window(premios_window)) # Configura el cierre para volver al menú
-        self.premios = Premios(test_mode=True)
+        self.premios = Premios()
         tk.Label(premios_window, text="MEJORES JUGADORES - JUEGO DE MEMORIA", font=("Helvetica", 16, "bold"), bg='#D6EADF', fg="#060505"
         ).pack(pady=(20, 10))
         tk.Label( premios_window, text="Premio = (1/Intentos) × 100 × Tipo de Cambio", font=("Helvetica", 10),bg='#D6EADF', fg="#060505"
@@ -223,8 +232,9 @@ class MainMenu:
         style = ttk.Style() # Estilo de la tabla
         style.configure("Treeview", font=('Helvetica', 10), rowheight=25)
         style.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
         # Obtener datos
-        premios = Premios(test_mode=True)  # Cambiar a test_mode=False en producción
+        premios = Premios(test_mode=True) 
         top5 = premios.obtener_top5()
         for i, jugador in enumerate(top5):
             tree.insert("", "end", values=(
@@ -235,11 +245,14 @@ class MainMenu:
                 f"₡{jugador['premio']:.2f}"
             ))
         tree.pack(padx=20, pady=10, fill='both', expand=True)
+
         if not top5:
             tk.Label(premios_window,  text="¡Aún no hay jugadores registrados! Gana una partida para aparecer aquí",font=("Helvetica", 12),fg="#060505", bg='#D6EADF'
             ).pack(pady=50)
+            
         button_frame = tk.Frame(premios_window, bg='#D6EADF')
         button_frame.pack(pady=10)
+        
         def borrar_seleccionado():
             selected = tree.selection()
             if not selected:
@@ -269,17 +282,26 @@ class MainMenu:
         """Regresa al menú principal desde la ventana de premios."""
         window.destroy()
         self.root.deiconify()
-        self.animation_active = True 
-        self.start_princess_animation() 
+        self.root.after(100, self.start_princess_animation)
 
     def return_to_main(self):
-        """Regresa al menú principal desde los juegos."""
+        """Regresa al menú principal desde los juegos"""
         self.stop_music()
-        # Guardar puntaje del jugador actual 
+        
         if hasattr(self, 'child_window') and self.child_window:
             self.child_window.destroy()
             self.play_musica("musica/pantallaprincipal.mp3")
-            self.root.deiconify()
+            self.stop_princess_animation()
+            
+            # VERIFICAR PRIMERO si debe abrir premios
+            if hasattr(MainMenu, '_open_premios_on_return') and MainMenu._open_premios_on_return:
+                MainMenu._open_premios_on_return = False  # Reset flag
+                # NO mostrar la ventana principal, ir directo a premios
+                self.open_premios_window()
+            else:
+                # Solo mostrar MainMenu si NO hay que abrir premios
+                self.root.deiconify()
+                self.root.after(100, self.start_princess_animation)
 
     def on_closing(self):
         """Método para manejar el cierre de la ventana principal."""

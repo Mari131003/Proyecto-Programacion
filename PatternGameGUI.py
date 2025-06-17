@@ -17,32 +17,26 @@ class PatternGameGUI:
         self.root.configure(bg="#F4E1FF")
         self.game = PatternGame()
         self.centrar_ventana()
-
         #Musica
         if self.music_callback:
             self.music_callback("musica/audiopatrones.mp3")
-        
         # Variables de juego
         self.BOTON_ANCHO = 8
         self.BOTON_ALTO = 4
         self.colores = ["#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#E1BAFF",
                "#FFBAFF", "#D4C5B9", "#B3E5FC", "#F8BBD9", "#C8E6C8", "#DDB3FF", 
                "#FF9E9E", "#FFCCCB", "#B3C6E7", "#C8E6A0"]
-        
         self.botones = [[None for _ in range(4)] for _ in range(4)]
         self.custom_font = font.Font(family="Helvetica", size=12, weight="bold")
-        
         # Variables de marcadores
         self.puntuacion = 0
         self.tiempo_restante = 12
         self.tiempo_restante_casillas = 2.0
-        
         # Variables de los widgets de marcadores
         self.label_titulo = None
         self.label_puntuacion = None
         self.label_tiempo = None
         self.boton_inicio = None
-        
         self.crear_interfaz()
         self.enviarRoot()
         self.CargarSonidoVictoria()
@@ -66,8 +60,6 @@ class PatternGameGUI:
         except Exception as e:
             print(f"No se pudo cargar sonido de victoria: {e}")
 
-        
-
     def enviarRoot(self):
         """Enviar Root a game"""
         self.game.setRoot(self.root)
@@ -80,7 +72,6 @@ class PatternGameGUI:
         #Mostrar el primer patron
         self.game.MostrarPatron()
 
-
     def return_to_main(self):
         """Cambia la música y ejecuta callback para volver al menú principal"""
         if self.music_callback:
@@ -88,7 +79,6 @@ class PatternGameGUI:
         if self.return_callback:
             self.return_callback()
         
-
     def centrar_ventana(self):
         """Centra la ventana en el centro exacto de la pantalla"""
         # Configurar tamaño de la ventana
@@ -120,58 +110,34 @@ class PatternGameGUI:
         frame_marcadores.grid_columnconfigure(3, weight=1)
         
         # Título del juego
-        self.label_titulo = tk.Label(
-            frame_marcadores,
-            text="Pattern Game",
-            font=("Arial", 20, "bold"),
-            fg="#5D00AF",
-            bg="#EBD4FF"
-        )
+        self.label_titulo = tk.Label(frame_marcadores,text="Pattern Game",font=("Arial", 20, "bold"),fg="#5D00AF",bg="#EBD4FF")
         self.label_titulo.grid(row=0, column=0, columnspan=4, pady=10)
         
         # Marcador de puntuación
         frame_puntuacion = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
         frame_puntuacion.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         
-        tk.Label(frame_puntuacion, text="Puntuación", 
-                font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
-        self.label_puntuacion = tk.Label(
-            frame_puntuacion,
-            text=str(self.puntuacion),
-            font=("Arial", 14, "bold"),
-            bg="#E5B7FF",
-            fg="#5D00AF"
-        )
+        tk.Label(frame_puntuacion, text="Puntuación", font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
+
+        self.label_puntuacion = tk.Label(frame_puntuacion,text=str(self.puntuacion),font=("Arial", 14, "bold"),bg="#E5B7FF",fg="#5D00AF")
         self.label_puntuacion.pack()
         
         # Marcador de tiempo total
         frame_tiempo = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
         frame_tiempo.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
         
-        tk.Label(frame_tiempo, text="Tiempo restante", 
-                font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
-        self.label_tiempo = tk.Label(
-            frame_tiempo,
-            text=str(self.tiempo_restante),
-            font=("Arial", 14, "bold"),
-            bg="#E5B7FF",
-            fg="#5D00AF"
-        )
+        tk.Label(frame_tiempo, text="Tiempo restante", font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
+
+        self.label_tiempo = tk.Label(frame_tiempo,text=str(self.tiempo_restante),font=("Arial", 14, "bold"),bg="#E5B7FF",fg="#5D00AF")
         self.label_tiempo.pack()
 
         # Marcador de tiempo entre casillas
         frame_tiempo_casillas = tk.Frame(frame_marcadores, bg="#E5B7FF", relief="sunken", bd=2)
         frame_tiempo_casillas.grid(row=1, column=2, padx=5, pady=5, sticky="ew")
         
-        tk.Label(frame_tiempo_casillas, text="Entre Casillas", 
-                font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
-        self.label_tiempo_casillas = tk.Label(
-            frame_tiempo_casillas,
-            text="2.0",
-            font=("Arial", 14, "bold"),
-            bg="#E5B7FF",
-            fg="#5D00AF"
-        )
+        tk.Label(frame_tiempo_casillas, text="Entre Casillas", font=("Arial", 10, "bold"), bg="#E5B7FF").pack()
+
+        self.label_tiempo_casillas = tk.Label(frame_tiempo_casillas,text="2.0",font=("Arial", 14, "bold"),bg="#E5B7FF",fg="#5D00AF")
         self.label_tiempo_casillas.pack()
         
         # Botón de inicio
@@ -223,7 +189,6 @@ class PatternGameGUI:
         #Enviar los botones para establecer el patron
         self.game.SetBotones(self.botones)
         self.game.EstablecerPatron()
-
 
         # Configurar grid para que los botones se expandan
         for i in range(2, 6): 
@@ -372,11 +337,9 @@ class PatternGameGUI:
         x = (screen_width - window_width) // 2
         y = (screen_height - window_height) // 2
         ventana_victoria.geometry(f"{window_width}x{window_height}+{x}+{y}")
-        
         ventana_victoria.resizable(False, False)
         ventana_victoria.configure(bg="#EBCDFD")
         ventana_victoria.grab_set() 
-
         ventana_victoria.protocol("WM_DELETE_WINDOW", lambda: None) # Evitar que se cierre con la X
         marco_imagen = tk.Frame(ventana_victoria, bg='white', bd=3, relief='ridge')
         marco_imagen.pack(pady=20, padx=50, fill='y', expand=True)
@@ -513,7 +476,6 @@ class PatternGameGUI:
         """Detiene el sonido de victoria"""
         if self.sonido_victoria:
             self.sonido_victoria.stop()
-
 
     def EnviarFunciones(self):
         self.game.RecibirFunciones(self.actualizar_puntuacion, self.actualizar_tiempo, 

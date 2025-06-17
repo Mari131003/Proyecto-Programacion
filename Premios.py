@@ -10,11 +10,10 @@ class Premios:
         self.token = "OJ9PAAOAL2"
         self.url = "https://gee.bccr.fi.cr/Indicadores/Suscripciones/WS/wsindicadoreseconomicos.asmx/ObtenerIndicadoresEconomicos"
         self.tipo_cambio = self.obtener_venta()  # Valor de prueba
-
         if test_mode:
-            print(f"[DEBUG] Modo prueba: Tipo de cambio = {self.tipo_cambio}")
-        else:
             print(f"[DEBUG] Tipo de cambio real obtenido = {self.tipo_cambio}")
+        else:
+            pass
 
     def calcular_premio(self, intentos: int) -> float:
         """Calcula el premio en colones"""
@@ -69,7 +68,6 @@ class Premios:
         if not nombre or nombre.strip() == "" or intentos <= 0:
             print("Nombre vacío o intentos inválidos. Registro no guardado.")
             return
-
         try:
             if os.path.exists("puntajes_memory.pkl"):
                 with open("puntajes_memory.pkl", 'rb') as f:
@@ -83,7 +81,6 @@ class Premios:
                 'intentos': intentos,
                 'fecha': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
-
             # Guardar actualizado
             with open("puntajes_memory.pkl", 'wb') as f:
                 pickle.dump(puntajes, f)
@@ -92,13 +89,7 @@ class Premios:
             print(f"Error guardando puntaje: {e}")
 
     def eliminar_jugador(self, nombre, intentos=None):
-        """
-        Elimina un jugador del archivo de puntajes.
-    
-        Args:
-            nombre (str): Nombre del jugador a eliminar.
-            intentos (int, optional): Si se da, elimina solo registros específicos.
-        """
+        """ Elimina un jugador del archivo de puntajes. """
         try:
             if not os.path.exists("puntajes_memory.pkl"):
                 print("No hay datos para eliminar")

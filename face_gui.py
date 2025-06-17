@@ -277,7 +277,8 @@ class Face_Recognition:
         """Cierra el login y abre el MainMenu"""
         self.login_thread_active = False #Cerrar el hilo
         time.sleep(0.1)
-        self.root.destroy() #Llamar a main menu
+        #Llamar a main menu
+        self.root.destroy()
         root = tk.Tk()
         app = MainMenu(root, username)
         root.mainloop()

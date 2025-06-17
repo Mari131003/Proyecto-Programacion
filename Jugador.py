@@ -1,6 +1,7 @@
 class Jugador:
     def __init__(self, nombre):
         self.nombre = nombre
+
 class JugadorClasico(Jugador):
     def __init__(self, nombre):
         super().__init__(nombre)

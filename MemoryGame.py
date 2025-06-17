@@ -267,8 +267,7 @@ class MemoryGame:
             JugadorActual.incrementar_intentos()
             JugadorActual.setParejasEncontradas()
             self.root.after(1000, lambda: self.ReiniciarCartas("Gane"))
-
-
+            
         else:
             if self.HayDosJugadores:
                 self.cambiar_turno()
@@ -307,4 +306,4 @@ class MemoryGame:
                 self.root.after(0, lambda: self.CrearVentanaGane(ganador))
         
 
-            
+          

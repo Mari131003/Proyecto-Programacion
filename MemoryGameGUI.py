@@ -6,6 +6,7 @@ import pickle
 import os
 import random
 from MemoryGame import MemoryGame
+from Premios import Premios
 
 
 class MemoryGameGUI:
@@ -28,6 +29,7 @@ class MemoryGameGUI:
         self.imagen_oculta = self.crear_imagen_oculta() 
         self.HayPareja = 0
         self.game = MemoryGame()
+        self.premios = Premios()
         self.botones_tablero1 = [[None for _ in range(6)] for _ in range(6)]
         self.botones_tablero2 = [[None for _ in range(6)] for _ in range(6)]
         self.crear_marcadores()
@@ -130,13 +132,10 @@ class MemoryGameGUI:
             fg="#B22F70"
         )
         self.marcador_turno.grid(row=0, column=6, sticky="ns")
-
         marcadores_frame.config(height=100)
         marcadores_frame.grid_propagate(False)
-
         self.EnviarMarcadores()
 
-    
     def EnviarMarcadores(self):
         """Enviar marcadores a la clase game"""
         #Enviamos marcadores de tiempo (para actualizarlos cada segundo)
@@ -147,8 +146,6 @@ class MemoryGameGUI:
 
         #Enviamos funcion que muestra los marcadores al ganar
         self.game.Recibir_VentanasGane(self.mostrar_ventana_ganador)
-
-
 
     def actualizar_marcadores(self):
         """Actualiza los marcadores con los valores actuales"""
@@ -210,7 +207,6 @@ class MemoryGameGUI:
                     "imagen_id": id_imagen,
                     "revelado": False
                 }
-
         #Crea la separacion entre ambos
         separador = tk.Frame(self.root, width=20, bg='#F5C5DB')
         separador.grid(row=1, column=6, rowspan=6, sticky="ns", padx=10)
@@ -265,7 +261,6 @@ class MemoryGameGUI:
         #Enviar tableros y sus botones
         self.game.setTableros(self.botones_tablero1,self.botones_tablero2)
     
-
     def revelar_imagen(self, fila, col, tablero):
         """Revela la imagen en la posición especificada del tablero indicado."""
         if not self.seleccion_activa:  # No hacer nada si la selección está bloqueada
@@ -309,21 +304,16 @@ class MemoryGameGUI:
         ventana_ganador.transient(self.root) 
         ventana_ganador.grab_set()
         # Título
-        titulo = tk.Label(ventana_ganador, text="🎉 ¡Felicidades! 🎉", 
-                        font=("Arial", 14, "bold"))
+        titulo = tk.Label(ventana_ganador, text="🎉 ¡Felicidades! 🎉", font=("Arial", 14, "bold"))
         titulo.pack(pady=10)
         # Mensaje del ganador
-        mensaje = tk.Label(ventana_ganador, text=f"Ganador: {ganador}", 
-                        font=("Arial", 12, "bold"), fg="#ff00c5")
+        mensaje = tk.Label(ventana_ganador, text=f"Ganador: {ganador}", font=("Arial", 12, "bold"), fg="#ff00c5")
         mensaje.pack(pady=5)
         # Mostrar intentos
-        detalles = tk.Label(ventana_ganador, 
-                        text=f"Jugador 1: {intentos1} intentos\nJugador 2: {intentos2} intentos")
+        detalles = tk.Label(ventana_ganador, text=f"Jugador 1: {intentos1} intentos\nJugador 2: {intentos2} intentos")
         detalles.pack(pady=5)
         # Botón para cerrar
-        boton_ok = tk.Button(ventana_ganador, text="OK", 
-                            command=ventana_ganador.destroy,
-                            width=10)
+        boton_ok = tk.Button(ventana_ganador, text="OK", command=ventana_ganador.destroy,width=10)
         boton_ok.pack(pady=10)
         # Centrar la ventana en la pantalla
         ventana_ganador.update_idletasks()
@@ -356,7 +346,6 @@ class MemoryGameGUI:
         self.game.reiniciar()
         self.actualizar_marcadores()
 
-
     def mostrar_ventana_victoria(self, ganador):
         """Muestra ventana de victoria con imagen que ocupa todo el marco"""
         if self.sonido_victoria:
@@ -373,7 +362,6 @@ class MemoryGameGUI:
         x = (screen_width - window_width) // 2
         y = (screen_height - window_height) // 2
         ventana_victoria.geometry(f"{window_width}x{window_height}+{x}+{y}")
-        
         ventana_victoria.resizable(False, False)
         ventana_victoria.configure(bg='#F5C5DB')
         ventana_victoria.grab_set() 
@@ -415,6 +403,9 @@ class MemoryGameGUI:
         frame_botones.pack(pady=(10, 20), fill='x')
         if ganador == "Jugador 1":
             self.guardar_resultado(nombre_mostrar, self.game.jugador1.getIntentos())
+        else:
+            self.guardar_resultado(nombre_mostrar, self.game.jugador2.getIntentos())
+
         tk.Button(
             frame_botones,
             text="Ver Premios",
@@ -440,33 +431,9 @@ class MemoryGameGUI:
             nombre_mostrar = "Oponente"
             intentos = self.game.jugador2.getIntentos()
     
-        self.guardar_resultado(nombre_mostrar, intentos)
-
     def guardar_resultado(self, nombre, intentos):
         """Guarda los resultados en archivo PKL"""
-        try:
-            if intentos <= 0:
-                return  # No guardar partidas no jugadas
-            # Cargar datos existentes o crear nueva lista
-            if os.path.exists(self.puntajes_file):
-                with open(self.puntajes_file, 'rb') as f:
-                    puntajes = pickle.load(f)
-            else:
-                puntajes = []
-        
-            # Añadir nuevo resultado con timestamp
-            nuevo_puntaje = {
-                'nombre': nombre,
-                'intentos': intentos,
-            }
-            puntajes.append(nuevo_puntaje)
-        
-            # Guardar
-            with open(self.puntajes_file, 'wb') as f:
-                pickle.dump(puntajes, f)
-            
-        except Exception as e:
-            print(f"Error guardando puntaje: {e}")
+        self.premios.guardar_puntaje(nombre, intentos)
 
     def detener_sonido(self):
         """Detiene el sonido de victoria"""
@@ -474,10 +441,16 @@ class MemoryGameGUI:
             self.sonido_victoria.stop()
 
     def abrir_premios(self):
-        """Método para abrir ventana de premios"""
-        self.root.destroy()  # Cierra la ventana actual del juego
-        root = tk.Tk()
+        """Método para abrir ventana de premios manteniendo la instancia actual"""
         from MainMenu import MainMenu
-        app = MainMenu(root,self.username)
-        app.open_premios_window()  # Abre directamente la ventana de premios
-        root.mainloop()
+        MainMenu._open_premios_on_return = True
+        
+        # Usar el callback normal para regresar al menú
+        if self.return_callback:
+            self.return_callback()
+        else:
+            self.root.destroy()
+            root = tk.Tk()
+            app = MainMenu(root, self.username)
+            root.after(200, app.open_premios_window)
+            root.mainloop()
